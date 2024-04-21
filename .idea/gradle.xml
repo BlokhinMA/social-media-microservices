@@ -21,10 +21,50 @@
         </option>
       </GradleProjectSettings>
       <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/api-gateway" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/api-gateway" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/authentication" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/authentication" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/communities" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/communities" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/html-pages" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/html-pages" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$/server" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$/server" />
+          </set>
+        </option>
+      </GradleProjectSettings>
+      <GradleProjectSettings>
+        <option name="externalProjectPath" value="$PROJECT_DIR$/users" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$/users" />
           </set>
         </option>
       </GradleProjectSettings>

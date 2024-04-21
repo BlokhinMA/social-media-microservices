@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{my_profile :: meta}"></th:block>
+    <title>Фотография</title>
+    <th:block th:replace="~{my_profile :: style}"></th:block>
+</head>
+<body>
+
+<th:block th:replace="~{my_profile :: header}"></th:block>
+
+<script>
+    let currentUrl = window.location.href,
+        id = currentUrl.substring(currentUrl.lastIndexOf('/') + 1);
+    fetch(`http://localhost:8765/albums/photo/${id}`)
+        .then(response => response.json())
+        .then(data => {
+            let body = document.querySelector('body'),
+                img = document.createElement('img'),
+                p,
+                a,
+                key,
+                host = window.location.host;
+
+            img.src = `http://localhost:8765/albums/photo_entity/${data.id}`;
+            body.appendChild(img);
+
+            const tags = data.tags;
+            let string = 'Теги: ';
+            p = document.createElement('p');
+            for (let i = 0; i < tags.length - 1; i++) {
+                string += `${tags[i].tag}, `;
+            }
+            string += `${tags[tags.length - 1].tag}`
+            p.textContent = string;
+            body.appendChild(p);
+
+            p = document.createElement('p');
+            if (data.rating === null)
+                p.textContent = `Фотография еще не оценивалась`;
+            else p.textContent = `Рейтинг фотографии: ${data.rating} %`;
+            body.appendChild(p);
+
+            const comments = data.comments;
+            let div;
+            for (key in tags) {
+                div = document.createElement('div');
+
+                p = document.createElement('p');
+                p.textContent = `${comments[key].comment}`;
+                div.appendChild(p);
+
+                a = document.createElement('a');
+                a.textContent = `${comments[key].commentingUserLogin}`;
+                a.href = `http://${host}/profile/${comments[key].commentingUserLogin}`;
+                p = document.createElement('p');
+                p.appendChild(a);
+                div.appendChild(p);
+
+                p = document.createElement('p');
+                p.textContent = `${comments[key].commentingTimeStamp}`;
+                div.appendChild(p);
+
+                body.appendChild(div);
+            }
+        })
+        .catch(error => {
+            console.error('Произошла ошибка', error);
+        });
+</script>
+
+</body>
+</html>

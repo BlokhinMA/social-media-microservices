@@ -1,5 +1,6 @@
 package ru.sstu.albums.controllers;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.sstu.albums.models.Album;
 import ru.sstu.albums.services.AlbumService;
@@ -16,11 +17,6 @@ public class AlbumController {
 
     private final AlbumService albumService;
 
-    @GetMapping("/album")
-    public String album() {
-        return "album";
-    }
-
     @GetMapping("/my_albums")
     public List<Album> showAll(Principal principal) {
         return albumService.showAll(principal);
@@ -32,8 +28,8 @@ public class AlbumController {
     }
 
     @PostMapping("/add_album")
-    public void create(Album album, List<MultipartFile> files, Principal principal) throws IOException {
-        albumService.create(album, files, principal);
+    public ResponseEntity<?> create(@RequestParam String name, @RequestBody List<MultipartFile> files) throws IOException {
+        return ResponseEntity.ok(albumService.create(name, files));
     }
 
     @GetMapping("/album/{id}")
@@ -43,7 +39,7 @@ public class AlbumController {
 
     @PostMapping("/create_photos")
     public void createPhotos(List<MultipartFile> files, int albumId, Principal principal) throws IOException {
-        albumService.createPhotos(files, albumId, principal);
+        albumService.createPhotos(files, albumId/*, principal*/);
     }
 
     @DeleteMapping("/delete_album")

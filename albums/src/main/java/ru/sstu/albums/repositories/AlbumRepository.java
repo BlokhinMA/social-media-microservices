@@ -15,9 +15,8 @@ public class AlbumRepository {
     private final JdbcTemplate jdbcTemplate;
 
     public Album save(Album album) {
-        return jdbcTemplate.query("call save_album(?, ?, ?)", new BeanPropertyRowMapper<>(Album.class),
+        return jdbcTemplate.query("call save_album(?, ?)", new BeanPropertyRowMapper<>(Album.class),
                         album.getName(),
-                        album.getAccessType(),
                         album.getUserLogin())
                 .stream().findAny().orElse(null);
     }
@@ -46,7 +45,6 @@ public class AlbumRepository {
 
     public Album updateAccessTypeById(Album album) {
         return jdbcTemplate.query("call update_album_access_type_by_id(?, ?)", new BeanPropertyRowMapper<>(Album.class),
-                        album.getAccessType(),
                         album.getId())
                 .stream().findAny().orElse(null);
     }

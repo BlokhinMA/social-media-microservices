@@ -23,10 +23,13 @@ public class AlbumService {
     private final PhotoRatingRepository photoRatingRepository;
     private final PhotoCommentRepository photoCommentRepository;
 
-    public void create(Album album, List<MultipartFile> files, Principal principal) throws IOException {
-        album.setUserLogin(principal.getName());
-        Album createdAlbum = this.albumRepository.save(album);
-        createPhotos(files, createdAlbum.getId(), principal);
+    public Album create(String name, List<MultipartFile> files/*, Principal principal*/) throws IOException {
+        Album album = new Album();
+        album.setName(name);
+        album.setUserLogin(/*principal.getName()*/"user");
+        Album createdAlbum = albumRepository.save(album);
+        createPhotos(files, createdAlbum.getId()/*, principal*/);
+        return createdAlbum;
     }
 
     private Photo toPhotoEntity(MultipartFile file) throws IOException {
@@ -48,7 +51,7 @@ public class AlbumService {
     }
 
     public Album show(int id) {
-        Album album = this.albumRepository.findById(id);
+        Album album = albumRepository.findById(id);
         album.setPhotos(photoRepository.findAllByAlbumId(id));
         return album;
     }
@@ -65,7 +68,7 @@ public class AlbumService {
         deletedAlbum.setPhotos(photos);
     }
 
-    public void createPhotos(List<MultipartFile> files, int albumId, Principal principal) throws IOException {
+    public void createPhotos(List<MultipartFile> files, int albumId/*, Principal principal*/) throws IOException {
         if (Objects.requireNonNull(files.getFirst().getOriginalFilename()).isEmpty())
             return;
         List<Photo> photos = new ArrayList<>();

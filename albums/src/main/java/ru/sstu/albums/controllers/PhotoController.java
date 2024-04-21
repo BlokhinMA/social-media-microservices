@@ -32,7 +32,7 @@ public class PhotoController {
 
     @GetMapping("/photo/{id}")
     public Photo show(@PathVariable int id, Principal principal) {
-        return photoService.show(id, principal);
+        return photoService.show(id/*, principal*/);
     }
 
     @DeleteMapping("/delete_photo")

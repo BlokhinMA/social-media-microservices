@@ -29,10 +29,11 @@ public class PhotoService {
         return photoRepository.findById(id);
     }
 
-    public Photo show(int id, Principal principal) {
-        Photo photo = this.photoRepository.findById(id);
+    public Photo show(int id/*, Principal principal*/) {
+        Photo photo = photoRepository.findById(id);
+        photo.setBytes(null);
         photo.setTags(photoTagRepository.findAllByPhotoId(id));
-        photo.setUserRating(photoRatingRepository.findByRatingUserLoginAndPhotoId(principal.getName(), id));
+        //photo.setUserRating(photoRatingRepository.findByRatingUserLoginAndPhotoId(principal.getName(), id));
         photo.setRating(photoRatingRepository.calculateAverageRatingByPhotoId(id));
         photo.setComments(photoCommentRepository.findAllByPhotoId(id));
         photo.setAlbum(albumRepository.findById(photo.getAlbumId()));
@@ -46,54 +47,54 @@ public class PhotoService {
         List<PhotoTag> tags = photoTagRepository.findAllByPhotoId(photoId);
         List<PhotoRating> ratings = photoRatingRepository.findAllByPhotoId(photoId);
         List<PhotoComment> comments = photoCommentRepository.findAllByPhotoId(photoId);
-        Photo deletedPhoto = this.photoRepository.deleteById(photo.getId());
+        Photo deletedPhoto = photoRepository.deleteById(photo.getId());
         deletedPhoto.setTags(tags);
         deletedPhoto.setRatings(ratings);
         deletedPhoto.setComments(comments);
     }
 
     public void createTag(PhotoTag photoTag, Principal principal) {
-        if (this.photoTagRepository.findByTagAndPhotoId(photoTag) != null)
+        if (photoTagRepository.findByTagAndPhotoId(photoTag) != null)
             return;
-        PhotoTag createdPhotoTag = this.photoTagRepository.save(photoTag);
+        PhotoTag createdPhotoTag = photoTagRepository.save(photoTag);
     }
 
     public void deleteTag(PhotoTag photoTag, Principal principal) {
         if (photoRepository.findById(photoTag.getPhotoId()) == null)
             return;
-        PhotoTag deletedPhotoTag = this.photoTagRepository.deleteById(photoTag.getId());
+        PhotoTag deletedPhotoTag = photoTagRepository.deleteById(photoTag.getId());
     }
 
     public void createRating(PhotoRating photoRating, Principal principal) {
         if (photoRepository.findById(photoRating.getPhotoId()) == null)
             return;
         photoRating.setRatingUserLogin(principal.getName());
-        PhotoRating createdPhotoRating = this.photoRatingRepository.save(photoRating);
+        PhotoRating createdPhotoRating = photoRatingRepository.save(photoRating);
     }
 
     public void updateRating(PhotoRating photoRating, Principal principal) {
         if (photoRepository.findById(photoRating.getPhotoId()) == null)
             return;
-        PhotoRating updatedPhotoRating = this.photoRatingRepository.updateRatingById(photoRating);
+        PhotoRating updatedPhotoRating = photoRatingRepository.updateRatingById(photoRating);
     }
 
     public void deleteRating(PhotoRating photoRating, Principal principal) {
         if (photoRepository.findById(photoRating.getPhotoId()) == null)
             return;
-        PhotoRating deletedPhotoRating = this.photoRatingRepository.deleteById(photoRating.getId());
+        PhotoRating deletedPhotoRating = photoRatingRepository.deleteById(photoRating.getId());
     }
 
     public void createComment(PhotoComment photoComment, Principal principal) {
         photoComment.setComment(photoComment.getComment());
         photoComment.setCommentingUserLogin(principal.getName());
         photoComment.setPhotoId(photoComment.getPhotoId());
-        PhotoComment createdPhotoComment = this.photoCommentRepository.save(photoComment);
+        PhotoComment createdPhotoComment = photoCommentRepository.save(photoComment);
     }
 
     public void deleteComment(PhotoComment photoComment, Principal principal) {
         if (photoRepository.findById(photoComment.getPhotoId()) == null)
             return;
-        PhotoComment deletedPhotoComment = this.photoCommentRepository.deleteById(photoComment.getId());
+        PhotoComment deletedPhotoComment = photoCommentRepository.deleteById(photoComment.getId());
     }
 
     public void find(String searchTerm, String word) {
