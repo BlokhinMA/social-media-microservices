@@ -17,7 +17,7 @@ public class AuthService {
 
     public AuthResponse register(AuthRequest request) {
         request.setPassword(BCrypt.hashpw(request.getPassword(), BCrypt.gensalt()));
-        User registeredUser = restTemplate.postForObject("", request, User.class);
+        User registeredUser = restTemplate.postForObject("http://users/users/sign_up", request, User.class);
 
         assert registeredUser != null;
         String accessToken = jwtUtil.generate(String.valueOf(registeredUser.getId()), registeredUser.getRole(), "ACCESS");

@@ -15,6 +15,7 @@ import java.io.ByteArrayInputStream;
 import java.security.Principal;
 
 @RestController
+@RequestMapping("/photos")
 @RequiredArgsConstructor
 public class PhotoController {
 

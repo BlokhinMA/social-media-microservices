@@ -12,6 +12,7 @@ import java.security.Principal;
 import java.util.List;
 
 @RestController
+@RequestMapping("/albums")
 @RequiredArgsConstructor
 public class AlbumController {
 

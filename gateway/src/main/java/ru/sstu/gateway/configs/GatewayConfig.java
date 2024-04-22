@@ -1,11 +1,13 @@
-package ru.sstu.apigateway.configs;
+package ru.sstu.gateway.configs;
 
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
+import org.springframework.cloud.netflix.hystrix.EnableHystrix;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+@EnableHystrix
 public class GatewayConfig {
 
     private final AuthenticationFilter filter;
@@ -23,18 +25,6 @@ public class GatewayConfig {
                 .route("authentication", r -> r.path("/auth/**")
                         .filters(f -> f.filter(filter))
                         .uri("lb://authentication"))
-                .route("albums", r -> r.path("/albums/**")
-                        .filters(f -> f.filter(filter))
-                        .uri("lb://albums"))
-                .route("albums", r -> r.path("/photos/**")
-                        .filters(f -> f.filter(filter))
-                        .uri("lb://albums"))
-                .route("communities", r -> r.path("/communities/**")
-                        .filters(f -> f.filter(filter))
-                        .uri("lb://communities"))
-                /*.route("html-pages", r -> r.path("/html-pages/**")
-                        .filters(f -> f.filter(filter))
-                        .uri("lb://html-pages"))*/
                 .build();
     }
 

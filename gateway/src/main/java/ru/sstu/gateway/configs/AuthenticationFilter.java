@@ -1,4 +1,4 @@
-package ru.sstu.apigateway.configs;
+package ru.sstu.gateway.configs;
 
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
@@ -8,16 +8,17 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
-
 import reactor.core.publisher.Mono;
-import ru.sstu.apigateway.services.JwtUtils;
+import ru.sstu.gateway.services.JwtUtils;
 
 @RefreshScope
 @Component
 public class AuthenticationFilter implements GatewayFilter {
 
+    //@Autowired
     private final RouterValidator validator;
 
+    //@Autowired
     private final JwtUtils jwtUtils;
 
     public AuthenticationFilter(RouterValidator validator, JwtUtils jwtUtils) {
@@ -33,7 +34,7 @@ public class AuthenticationFilter implements GatewayFilter {
             if (authMissing(request))
                 return onError(exchange);
 
-            final String token = request.getHeaders().getOrEmpty("Authorization").getFirst();
+            final String token = request.getHeaders().getOrEmpty("Authorization").get(0);
 
             if (jwtUtils.isExpired(token)) {
                 return onError(exchange);

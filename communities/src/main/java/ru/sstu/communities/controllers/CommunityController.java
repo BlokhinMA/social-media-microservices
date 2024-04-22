@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Objects;
 
 @RestController
+@RequestMapping("/communities")
 @RequiredArgsConstructor
 public class CommunityController {
 
