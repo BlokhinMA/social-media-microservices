@@ -6,7 +6,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.sstu.authentication.models.AuthRequest;
+import ru.sstu.authentication.models.AuthResponse;
+import ru.sstu.authentication.models.LogRequest;
+import ru.sstu.authentication.models.RegRequest;
 import ru.sstu.authentication.services.AuthService;
 
 @RestController
@@ -17,8 +19,16 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody AuthRequest request) {
+    public ResponseEntity<?> register(@RequestBody RegRequest request) {
         return ResponseEntity.ok(authService.register(request));
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LogRequest request) {
+        AuthResponse authResponse = authService.login(request);
+        if (authResponse != null)
+            return ResponseEntity.ok(authResponse);
+        else return (ResponseEntity<?>) ResponseEntity.badRequest();
     }
 
 }

@@ -12,7 +12,11 @@
 <script>
     let currentUrl = window.location.href,
         userLogin = currentUrl.substring(currentUrl.lastIndexOf('/') + 1);
-    fetch(`http://localhost:8765/albums/albums/${userLogin}`)
+    fetch(`http://localhost:8765/albums/albums/${userLogin}`, {
+        headers: {
+            'Authorization': 'eyJhbGciOiJIUzI1NiJ9.eyJpZCI6IjMxIiwicm9sZSI6IlVTRVIiLCJzdWIiOiIzMSIsImlhdCI6MTcxNDA3NTA2MSwiZXhwIjoxNzE0MTYxNDYxfQ.RwVXpDjN26gSXzE79_MeEjWobftjPLLkb5D75Ja__2o',
+        },
+    })
         .then(response => response.json())
         .then(data => {
             let body = document.querySelector('body'),

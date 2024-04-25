@@ -26,8 +26,8 @@ public class UserService {
         if (userRepository.findByLogin(user.getLogin()) != null || userRepository.findByEmail(user.getEmail()) != null)
             return null;
         //user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setRole("USER");
         User createdUser = userRepository.save(user);
-        createdUser.setRole("USER");
         /*List<String> listRoles = new ArrayList<>();
         listRoles.add(roleRepository.save(Role.ROLE_USER, createdUser.getLogin()));
         Set<Role> roles = new HashSet<>();

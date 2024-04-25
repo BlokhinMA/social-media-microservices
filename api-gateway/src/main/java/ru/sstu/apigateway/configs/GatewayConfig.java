@@ -24,7 +24,7 @@ public class GatewayConfig {
                         .filters(f -> f.filter(filter))
                         .uri("lb://authentication"))
                 .route("albums", r -> r.path("/albums/**")
-                        //.filters(f -> f.filter(filter))
+                        .filters(f -> f.filter(filter))
                         .uri("lb://albums"))
                 .route("albums", r -> r.path("/photos/**")
                         .filters(f -> f.filter(filter))

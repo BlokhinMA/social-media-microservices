@@ -9,7 +9,7 @@
 
 <h1>Вход</h1>
 
-<form>
+<form id="signIn">
     <label for="username">Логин</label><br>
     <input type="text" id="username" name="username" placeholder="Логин" required><br>
     <br>
@@ -20,6 +20,37 @@
 
     <button>Войти</button>
 </form>
+
+<script>
+    const form = document.getElementById('signIn');
+
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const login = document.getElementById('login').value;
+        const password = document.getElementById('password').value;
+
+        const data = {
+            login: login,
+            password: password,
+        }
+
+        fetch('http://localhost:8765/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data),
+        })
+            .then(response => {
+                if (response.ok) {
+                    console.log('Данные успешно отправлены на сервер');
+                } else {
+                    console.error('Произошла ошибка при отправке данных');
+                }
+            })
+    });
+</script>
 
 <p><a th:href="@{/sign_up}">Зарегистрироваться</a></p>
 

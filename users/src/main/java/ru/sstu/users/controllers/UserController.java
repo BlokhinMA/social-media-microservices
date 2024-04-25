@@ -25,7 +25,7 @@ public class UserController {
         return userService.getUserByPrincipal(principal);
     }
 
-    @GetMapping("/profile/{login}")
+    @GetMapping("/{login}")
     public User getUserByLogin(@PathVariable String login, Principal principal) {
         return userService.getUserByLogin(login);
     }

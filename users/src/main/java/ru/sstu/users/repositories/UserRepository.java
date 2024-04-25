@@ -40,13 +40,14 @@ public class UserRepository {
     }
 
     public User save(User user) {
-        return jdbcTemplate.query("call save_user(?, ?, ?, ?, ?, ?)", new BeanPropertyRowMapper<>(User.class),
+        return jdbcTemplate.query("call save_user(?, ?, ?, ?, ?, ?, ?)", new BeanPropertyRowMapper<>(User.class),
                         user.getLogin(),
                         user.getEmail(),
                         user.getFirstName(),
                         user.getLastName(),
                         user.getBirthDate(),
-                        user.getPassword())
+                        user.getPassword(),
+                        user.getRole())
                 .stream().findAny().orElse(null);
     }
 

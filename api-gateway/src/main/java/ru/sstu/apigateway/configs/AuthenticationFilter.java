@@ -38,6 +38,17 @@ public class AuthenticationFilter implements GatewayFilter {
             if (jwtUtils.isExpired(token)) {
                 return onError(exchange);
             }
+
+            /*// Получите токен после успешной аутентификации
+            String newToken = "your_new_token_here";
+
+            // Добавьте новый токен в заголовок "Authorization"
+            ServerHttpRequest modifiedRequest = request.mutate()
+                    .header("Authorization", "Bearer " + newToken)
+                    .build();
+
+            return chain.filter(exchange.mutate().request(modifiedRequest).build());*/
+
         }
         return chain.filter(exchange);
     }
