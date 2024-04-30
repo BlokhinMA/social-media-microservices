@@ -1,5 +1,7 @@
 package ru.sstu.apigateway.configs;
 
+import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -14,16 +16,11 @@ import ru.sstu.apigateway.services.JwtUtils;
 
 @RefreshScope
 @Component
+@AllArgsConstructor
 public class AuthenticationFilter implements GatewayFilter {
 
     private final RouterValidator validator;
-
     private final JwtUtils jwtUtils;
-
-    public AuthenticationFilter(RouterValidator validator, JwtUtils jwtUtils) {
-        this.validator = validator;
-        this.jwtUtils = jwtUtils;
-    }
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {

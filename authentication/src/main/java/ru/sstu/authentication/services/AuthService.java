@@ -1,6 +1,9 @@
 package ru.sstu.authentication.services;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -9,10 +12,9 @@ import ru.sstu.authentication.models.RegRequest;
 import ru.sstu.authentication.models.AuthResponse;
 import ru.sstu.authentication.models.User;
 
-import java.util.Objects;
-
 @Service
 @AllArgsConstructor
+@Log4j2
 public class AuthService {
 
     private final RestTemplate restTemplate;
@@ -30,11 +32,12 @@ public class AuthService {
     }
 
     public AuthResponse login(LogRequest request) {
-        User user = restTemplate.getForObject("http://users/users/" + request.getLogin(), User.class);
-        assert user != null;
-        if (Objects.equals(request.getPassword(), user.getPassword())) {
+        User user = restTemplate.getForObject("http://users/users/auth_" + request.getLogin(), User.class);
+
+        if (user != null && BCrypt.checkpw(request.getPassword(), user.getPassword())) {
             String accessToken = jwtUtil.generate(String.valueOf(user.getId()), user.getRole(), "ACCESS");
             String refreshToken = jwtUtil.generate(String.valueOf(user.getId()), user.getRole(), "REFRESH");
+
             return new AuthResponse(accessToken, refreshToken);
         } else return null;
     }

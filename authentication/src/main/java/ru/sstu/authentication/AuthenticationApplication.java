@@ -19,4 +19,14 @@ public class AuthenticationApplication {
         return new RestTemplate();
     }
 
+    @Bean
+    public String accessToken() {
+        return "";
+    }
+
+    @Bean
+    public String refreshToken() {
+        return "";
+    }
+
 }

@@ -1,12 +1,20 @@
 package ru.sstu.htmlpages.controllers;
 
+import lombok.AllArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.client.RestTemplate;
 
 @Controller
+@AllArgsConstructor
+@Log4j2
 //@RequestMapping("/html-pages")
 public class PagesController {
+
+    private final RestTemplate restTemplate;
 
     /*@GetMapping("/admin_users/**")
     public String adminUsers() {
@@ -14,12 +22,16 @@ public class PagesController {
     }*/
 
     @GetMapping("/album/*")
-    public String album() {
+    public String album(Model model) {
+        /*String token = restTemplate.getForObject("http://auth/get_token", String.class);
+        model.addAttribute("token", token);*/
         return "album";
     }
 
     @GetMapping("/albums/*")
-    public String albums() {
+    public String albums(Model model) {
+        /*String token = restTemplate.getForObject("http://auth/get_token", String.class);
+        model.addAttribute("token", token);*/
         return "albums";
     }
 

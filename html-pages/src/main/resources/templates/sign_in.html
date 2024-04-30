@@ -10,8 +10,8 @@
 <h1>Вход</h1>
 
 <form id="signIn">
-    <label for="username">Логин</label><br>
-    <input type="text" id="username" name="username" placeholder="Логин" required><br>
+    <label for="login">Логин</label><br>
+    <input type="text" id="login" name="login" placeholder="Логин" required><br>
     <br>
     <label for="password">Пароль</label><br>
     <input type="password" id="password" name="password" placeholder="Пароль" required>
@@ -25,6 +25,10 @@
     const form = document.getElementById('signIn');
 
     form.addEventListener('submit', function(event) {
+        let wrong = document.getElementById('wrong');
+        if (wrong !== null)
+            wrong.remove();
+
         event.preventDefault();
 
         const login = document.getElementById('login').value;
@@ -45,8 +49,15 @@
             .then(response => {
                 if (response.ok) {
                     console.log('Данные успешно отправлены на сервер');
+                    window.location.href = `http://${window.location.host}`;
                 } else {
                     console.error('Произошла ошибка при отправке данных');
+                    let form = document.getElementById('signIn');
+                    p = document.createElement('p');
+                    p.id = 'wrong';
+                    p.textContent = 'Неправильный логин или пароль';
+                    p.style.color = 'red';
+                    form.appendChild(p);
                 }
             })
     });

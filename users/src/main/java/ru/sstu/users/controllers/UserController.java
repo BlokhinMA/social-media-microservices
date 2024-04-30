@@ -30,4 +30,9 @@ public class UserController {
         return userService.getUserByLogin(login);
     }
 
+    @GetMapping("/auth_{login}")
+    public User getUserByLoginForAuth(@PathVariable String login) {
+        return userService.getUserByLoginForAuth(login);
+    }
+
 }

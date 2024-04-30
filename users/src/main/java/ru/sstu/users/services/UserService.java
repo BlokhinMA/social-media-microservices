@@ -52,4 +52,9 @@ public class UserService {
         return user;
     }
 
+    public User getUserByLoginForAuth(String login) {
+        User user = userRepository.findByLogin(login);
+        return new User(user.getLogin(), user.getPassword());
+    }
+
 }

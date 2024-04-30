@@ -39,6 +39,10 @@
     const form = document.getElementById('signUp');
 
     form.addEventListener('submit', function(event) {
+        let wrong = document.getElementById('wrong');
+        if (wrong !== null)
+            wrong.remove();
+
         event.preventDefault();
 
         const login = document.getElementById('login').value;
@@ -52,6 +56,7 @@
         if (password !== passwordAgain) {
             let p = document.createElement('p');
             p.textContent = 'Пароли не совпадают!';
+            p.id = 'wrong';
             p.style.color = 'red';
             document.getElementById('signUp').appendChild(p);
             return;

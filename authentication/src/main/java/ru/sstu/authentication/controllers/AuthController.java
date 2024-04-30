@@ -2,10 +2,7 @@ package ru.sstu.authentication.controllers;
 
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.sstu.authentication.models.AuthResponse;
 import ru.sstu.authentication.models.LogRequest;
 import ru.sstu.authentication.models.RegRequest;
@@ -28,7 +25,7 @@ public class AuthController {
         AuthResponse authResponse = authService.login(request);
         if (authResponse != null)
             return ResponseEntity.ok(authResponse);
-        else return (ResponseEntity<?>) ResponseEntity.badRequest();
+        else return ResponseEntity.badRequest().build();
     }
 
 }
