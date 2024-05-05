@@ -1,17 +1,15 @@
 package ru.sstu.apigateway.models;
 
 import lombok.AllArgsConstructor;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-@AllArgsConstructor
-public class User implements UserDetails {
+//@AllArgsConstructor
+public class User/* implements UserDetails*/ {
 
-    private String login;
+    /*private String login;
     private String password;
     //private final Set<Role> roles = new HashSet<>();
 
@@ -48,6 +46,6 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
-    }
+    }*/
 
 }

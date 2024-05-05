@@ -2,7 +2,7 @@
 <html lang="ru" xmlns:th="http://www.thymeleaf.org">
 <head>
     <th:block th:replace="~{my_profile :: meta}"></th:block>
-    <title>Альбомы</title>
+    <title>Сообщества</title>
     <th:block th:replace="~{my_profile :: style}"></th:block>
 </head>
 <body>
@@ -11,13 +11,13 @@
 
 <script>
     let currentUrl = window.location.href,
-        userLogin = currentUrl.substring(currentUrl.lastIndexOf('/') + 1);
-    fetch(`http://localhost:8765/albums/albums/${userLogin}`)
+        memberLogin = currentUrl.substring(currentUrl.lastIndexOf('/') + 1);
+    fetch(`http://localhost:8765/communities/communities/${memberLogin}`)
         .then(response => response.json())
         .then(data => {
             let body = document.querySelector('body'),
                 h1 = document.createElement('h1');
-            h1.textContent = `Альбомы пользователя ${data[0].userLogin}`;
+            h1.textContent = `Сообщества пользователя ${memberLogin}`;
             body.appendChild(h1);
             let key,
                 p,
@@ -26,7 +26,7 @@
             for (key in data) {
                 p = document.createElement('p');
                 a = document.createElement('a');
-                a.href = `http://${host}/album/${data[key].id}`;
+                a.href = `${host}/community/${data[key].id}`;
                 a.textContent = `${data[key].name}`;
                 p.appendChild(a);
                 body.appendChild(p);

@@ -2,7 +2,7 @@
 <html lang="ru" xmlns:th="http://www.thymeleaf.org">
 <head>
     <th:block th:replace="~{my_profile :: meta}"></th:block>
-    <title>Альбомы</title>
+    <title>Альбом</title>
     <th:block th:replace="~{my_profile :: style}"></th:block>
 </head>
 <body>
@@ -11,25 +11,26 @@
 
 <script>
     let currentUrl = window.location.href,
-        userLogin = currentUrl.substring(currentUrl.lastIndexOf('/') + 1);
-    fetch(`http://localhost:8765/albums/albums/${userLogin}`)
+        id = currentUrl.substring(currentUrl.lastIndexOf('/') + 1);
+    fetch(`http://localhost:8765/albums/album/${id}`)
         .then(response => response.json())
         .then(data => {
             let body = document.querySelector('body'),
                 h1 = document.createElement('h1');
-            h1.textContent = `Альбомы пользователя ${data[0].userLogin}`;
+            h1.textContent = `Альбом ${data.name}`;
             body.appendChild(h1);
             let key,
-                p,
                 a,
+                img,
                 host = window.location.host;
-            for (key in data) {
-                p = document.createElement('p');
+            const photos = data.photos;
+            for (key in photos) {
                 a = document.createElement('a');
-                a.href = `http://${host}/album/${data[key].id}`;
-                a.textContent = `${data[key].name}`;
-                p.appendChild(a);
-                body.appendChild(p);
+                a.href = `http://${host}/photo/${photos[key].id}`;
+                img = document.createElement('img');
+                img.src = `http://localhost:8765/albums/photo_entity/${photos[key].id}`;
+                a.appendChild(img);
+                body.appendChild(a);
             }
         })
         .catch(error => {

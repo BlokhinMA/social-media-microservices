@@ -54,7 +54,7 @@ public class UserService {
 
     public User getUserByLoginForAuth(String login) {
         User user = userRepository.findByLogin(login);
-        return new User(user.getLogin(), user.getPassword());
+        return new User(user.getLogin(), user.getPassword(), user.getRole());
     }
 
 }

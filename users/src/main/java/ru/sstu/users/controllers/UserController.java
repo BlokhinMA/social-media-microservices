@@ -15,10 +15,10 @@ public class UserController {
 
     private final UserService userService;
 
-    @PostMapping("/sign_up")
+    /*@PostMapping("/sign_up")
     public ResponseEntity<?> create(@RequestBody User user) {
         return ResponseEntity.ok(userService.create(user));
-    }
+    }*/
 
     @GetMapping("/my_profile")
     public User getUserByPrincipal(Principal principal) {
@@ -30,9 +30,9 @@ public class UserController {
         return userService.getUserByLogin(login);
     }
 
-    @GetMapping("/auth_{login}")
-    public User getUserByLoginForAuth(@PathVariable String login) {
-        return userService.getUserByLoginForAuth(login);
-    }
+    /*@GetMapping("/auth_{signIn}")
+    public User getUserByLoginForAuth(@PathVariable String signIn) {
+        return userService.getUserByLoginForAuth(signIn);
+    }*/
 
 }

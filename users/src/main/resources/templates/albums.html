@@ -12,7 +12,11 @@
 <script>
     let currentUrl = window.location.href,
         userLogin = currentUrl.substring(currentUrl.lastIndexOf('/') + 1);
-    fetch(`http://localhost:8765/albums/albums/${userLogin}`)
+    fetch(`http://localhost:8765/albums/albums/${userLogin}`, {
+        headers: {
+            'Authorization': `[[${token}]]`
+        },
+    })
         .then(response => response.json())
         .then(data => {
             let body = document.querySelector('body'),

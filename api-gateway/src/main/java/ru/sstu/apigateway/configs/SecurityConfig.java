@@ -2,34 +2,57 @@ package ru.sstu.apigateway.configs;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
-import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.reactive.CorsConfigurationSource;
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
-@Configuration
-@EnableWebFluxSecurity
+import java.util.List;
+
+/*@Configuration
+@EnableWebFluxSecurity*/
 public class SecurityConfig {
 
-    @Bean
+    /*@Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 
         http
                 .authorizeExchange((requests) -> requests
-                        .pathMatchers("/albums/**").permitAll()
+                        .pathMatchers("/get_token", "/login").permitAll()
                         .anyExchange().authenticated()
                 )
                 .formLogin(Customizer.withDefaults())
+                .csrf(ServerHttpSecurity.CsrfSpec::disable)
+                .formLogin((form) -> form
+                        .loginPage("/login")
+                )
+                .logout((logout) -> logout
+                        .logoutUrl("/logout")
+                )
+                .cors((cors -> cors
+                        .configurationSource(corsConfigurationSource())
+                ))
         ;
 
         return http.build();
     }
 
     @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.addAllowedOrigin("*");
+        configuration.addAllowedMethod("*");
+        configuration.addAllowedHeader("*");
+        configuration.applyPermitDefaultValues();
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
+    @Bean
     public PasswordEncoder encoder() {
         return new BCryptPasswordEncoder(8);
-    }
+    }*/
 
 }

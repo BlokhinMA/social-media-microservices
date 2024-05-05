@@ -1,4 +1,4 @@
-package ru.sstu.htmlpages.controllers;
+package ru.sstu.users.controllers;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -6,7 +6,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import ru.sstu.htmlpages.services.fromGatewayService;
+import ru.sstu.users.services.AuthService;
 
 import java.util.Objects;
 
@@ -23,31 +23,38 @@ public class PagesController {
         return "adminUsers";
     }*/
 
+    private final AuthService authService;
+
     @GetMapping()
     public String index() {
-        return "index";
+        /*if (authService.getUser() != null)
+            return "redirect:/my_profile";
+        return "index";*/
+        return authService.redirect("index");
     }
 
     @GetMapping("/sign_up")
     public String signUp() {
-        return "sign_up";
+        //return "sign_up";
+        return authService.redirect("sign_up");
     }
 
     @GetMapping("/sign_in")
     public String signIn(Model model) {
         //model.addAttribute("csrf", fromGatewayService.getToken());
-        return "sign_in";
+        //return "sign_in";
+        return authService.redirect("sign_in");
     }
 
     @GetMapping("/my_profile")
     public String myProfile(Model model) {
-        //model.addAttribute("name", fromGatewayService.getUsername());
+        model.addAttribute("user", authService.getUser());
         return "my_profile";
     }
 
     @GetMapping("/profile/{login}")
     public String profile(@PathVariable String login) {
-        /*if (Objects.equals(login, fromGatewayService.getUsername()))
+        /*if (Objects.equals(signIn, fromGatewayService.getUsername()))
             return "redirect:/my_profile";*/
         return "profile";
     }
@@ -58,7 +65,8 @@ public class PagesController {
     }
 
     @GetMapping("/albums/*")
-    public String albums() {
+    public String albums(Model model) {
+        model.addAttribute("token", authService.getAccessToken());
         return "albums";
     }
 
