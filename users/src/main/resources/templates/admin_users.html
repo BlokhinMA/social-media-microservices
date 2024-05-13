@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{my_profile :: meta}"></th:block>
+    <title>Пользователи</title>
+    <th:block th:replace="~{my_profile :: style}"></th:block>
+</head>
+<body>
+
+<h1>Пользователи</h1>
+
+<th:block th:replace="~{my_profile :: header}"></th:block>
+
+<script>
+
+    fetch(`http://localhost:8765/users/all`, requestOptions)
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error('Network response was not ok.');
+        })
+        .then(data => {
+            let body = document.querySelector('body');
+            let table = document.createElement('table');
+
+            let key,
+                tr,
+                td,
+                input,
+                button;
+
+            tr = document.createElement('tr');
+
+            td = document.createElement('td');
+            td.textContent = 'id';
+            tr.appendChild(td);
+
+            td = document.createElement('td');
+            td.textContent = 'login';
+            tr.appendChild(td);
+
+            td = document.createElement('td');
+            td.textContent = 'email';
+            tr.appendChild(td);
+
+            td = document.createElement('td');
+            td.textContent = 'first_name';
+            tr.appendChild(td);
+
+            td = document.createElement('td');
+            td.textContent = 'last_name';
+            tr.appendChild(td);
+
+            td = document.createElement('td');
+            td.textContent = 'birth_date';
+            tr.appendChild(td);
+
+            td = document.createElement('td');
+            td.textContent = 'role';
+            tr.appendChild(td);
+
+            table.appendChild(tr);
+            body.appendChild(table);
+
+            for (key in data) {
+                tr = document.createElement('tr');
+
+                td = document.createElement('td');
+                td.textContent = data[key].id;
+                tr.appendChild(td);
+
+                td = document.createElement('td');
+                td.textContent = data[key].login;
+                tr.appendChild(td);
+
+                td = document.createElement('td');
+                td.textContent = data[key].email;
+                tr.appendChild(td);
+
+                td = document.createElement('td');
+                td.textContent = data[key].firstName;
+                tr.appendChild(td);
+
+                td = document.createElement('td');
+                td.textContent = data[key].lastName;
+                tr.appendChild(td);
+
+                td = document.createElement('td');
+                td.textContent = data[key].birthDate;
+                tr.appendChild(td);
+
+                /*td = document.createElement('td');
+                td.textContent = data[key].role;
+                tr.appendChild(td);*/
+
+                td = document.createElement('td');
+                td.style.border = "0";
+                input = document.createElement('input');
+                input.value = data[key].role;
+                input.style.borderRadius = "0";
+                td.appendChild(input);
+                tr.appendChild(td);
+
+                button = document.createElement('button');
+                button.id = data[key].id;
+                button.className = "change";
+                button.textContent = 'изменить';
+                tr.appendChild(button);
+
+                table.appendChild(tr);
+            }
+        })
+        .catch(error => {
+            console.error('Произошла ошибка', error);
+        });
+
+    /*const buttonsChange = document.querySelectorAll('.change');
+    console.log(buttonsChange);*/
+
+    const buttons = document.getElementsByClassName('change');
+
+    const buttonsElements = Array.from(buttons);
+
+    console.log(buttonsElements);
+
+    /*buttons.forEach(button => {
+        button.addEventListener('click', function () {
+            console.log(button.id);
+        });
+    });*/
+
+    /*for (button of buttons) {
+        button.addEventListener('click', function () {
+            console.log('Кнопка нажата');
+        });
+    }*/
+
+    /*for (let i = 0; i < buttons.length; i++) {
+        buttons[i].addEventListener('click', function () {
+            console.log('Кнопка нажата');
+        });
+    }*/
+
+
+    //const buttons = document.querySelectorAll('button');
+
+    /*buttons.forEach(button => {
+        button.addEventListener('click', function () {
+            console.log(button.id);
+        })
+    })*/
+    /*buttonsChange.forEach(buttonChange => {
+        buttonChange.addEventListener('click', function () {
+            console.log(buttonChange.textContent);
+        })
+    });*/
+
+</script>
+
+</body>
+</html>

@@ -1,6 +1,6 @@
 package ru.sstu.albums.repositories;
 
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -9,7 +9,7 @@ import ru.sstu.albums.models.Photo;
 import java.util.List;
 
 @Repository
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class PhotoRepository {
 
     private final JdbcTemplate jdbcTemplate;
@@ -57,6 +57,10 @@ public class PhotoRepository {
     public List<Photo> findAllLikeComments(String word) {
         return jdbcTemplate.query("call find_photos_like_comments(?)", new BeanPropertyRowMapper<>(Photo.class),
                 word);
+    }
+
+    public List<Photo> findAll() {
+        return jdbcTemplate.query("call find_photos()", new BeanPropertyRowMapper<>(Photo.class));
     }
 
 }

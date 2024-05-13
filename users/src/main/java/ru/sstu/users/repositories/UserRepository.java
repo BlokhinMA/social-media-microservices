@@ -1,41 +1,21 @@
 package ru.sstu.users.repositories;
 
+import lombok.AllArgsConstructor;
 import ru.sstu.users.models.User;
-import ru.sstu.users.models.enums.Role;
-import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class UserRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
     public User findByLogin(String login) {
-
-        User user = jdbcTemplate.query("call find_user_by_login(?)", new BeanPropertyRowMapper<>(User.class),
+        return jdbcTemplate.query("call find_user_by_login(?)", new BeanPropertyRowMapper<>(User.class),
                         login)
-                .stream().findAny().orElse(null);
-
-        /*if (user != null) {
-            List<String> roles = jdbcTemplate.queryForList("call find_roles_by_user_login(?)", String.class,
-                    user.getLogin());
-
-            for (String role : roles) {
-                user.getRoles().add(Role.valueOf(role));
-            }
-
-        }*/
-
-        return user;
-    }
-
-    public User findByEmail(String email) {
-        return jdbcTemplate.query("call find_user_by_email(?)", new BeanPropertyRowMapper<>(User.class),
-                        email)
                 .stream().findAny().orElse(null);
     }
 

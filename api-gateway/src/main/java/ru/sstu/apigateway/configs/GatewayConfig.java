@@ -30,6 +30,9 @@ public class GatewayConfig {
                 .route("communities", r -> r.path("/communities/**")
                         .filters(f -> f.filter(filter))
                         .uri("lb://communities"))
+                .route("logging", r -> r.path("/logging/**")
+                        .filters(f -> f.filter(filter))
+                        .uri("lb://logging"))
                 /*.route("html-pages", r -> r.path("/html-pages/**")
                         //.filters(f -> f.filter(filter))
                         .uri("lb://html-pages"))*/

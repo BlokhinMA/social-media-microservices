@@ -13,6 +13,8 @@ import java.security.Principal;
 /*@RestController
 @Log4j2
 @RequiredArgsConstructor*/
+@Log4j2
+@RestController
 public class LoginController {
 
     /*private final CustomUserDetailsService customUserDetailsService;
@@ -29,6 +31,12 @@ public class LoginController {
         String token = exchange.getAttribute(CsrfToken.class.getName());
         log.error(token);
         return exchange.getAttribute(CsrfToken.class.getName());
+    }*/
+
+    /*@GetMapping("/**")
+    public void forLogger(ServerWebExchange exchange) {
+        String s = exchange.getRequest().getURI().getPath();
+        log.error(s);
     }*/
 
 }

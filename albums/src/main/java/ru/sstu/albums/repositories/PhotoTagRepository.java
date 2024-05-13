@@ -1,6 +1,6 @@
 package ru.sstu.albums.repositories;
 
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -9,8 +9,7 @@ import ru.sstu.albums.models.PhotoTag;
 import java.util.List;
 
 @Repository
-@RequiredArgsConstructor
-
+@AllArgsConstructor
 public class PhotoTagRepository {
 
     private final JdbcTemplate jdbcTemplate;
@@ -38,6 +37,10 @@ public class PhotoTagRepository {
         return jdbcTemplate.query("call delete_photo_tag_by_id(?)", new BeanPropertyRowMapper<>(PhotoTag.class),
                         id)
                 .stream().findAny().orElse(null);
+    }
+
+    public List<PhotoTag> findAll() {
+        return jdbcTemplate.query("call find_photo_tags()", new BeanPropertyRowMapper<>(PhotoTag.class));
     }
 
 }

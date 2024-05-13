@@ -1,83 +1,95 @@
 package ru.sstu.communities.controllers;
 
+import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.sstu.communities.models.Community;
 import ru.sstu.communities.models.CommunityMember;
 import ru.sstu.communities.models.CommunityPost;
 import ru.sstu.communities.services.CommunityService;
-import lombok.RequiredArgsConstructor;
 
-import java.security.Principal;
 import java.util.List;
-import java.util.Objects;
 
 @RestController
 @RequestMapping("/communities")
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class CommunityController {
 
     private final CommunityService communityService;
 
-    @GetMapping("/community_management")
-    public List<Community> showAllOwn(Principal principal) {
-        return communityService.showAllOwn(principal);
+    @GetMapping("/community_management/{userLogin}")
+    public List<Community> showAllOwn(@PathVariable String userLogin) {
+        return communityService.showAllOwn(userLogin);
     }
 
-    @GetMapping("/my_communities")
+    /*@GetMapping("/my_communities")
     public List<Community> myCommunities(Principal principal) {
         return communityService.showAll(principal);
-    }
+    }*/
 
     @PostMapping("/add_community")
-    public void create(Community community, Principal principal) {
-        communityService.create(community, principal);
+    public ResponseEntity<?> create(@RequestBody Community community) {
+        return ResponseEntity.ok(communityService.create(community));
     }
 
-    @DeleteMapping("/delete_community")
-    public void delete(int id, Principal principal) {
-        communityService.delete(id, principal);
+    /*@DeleteMapping("/delete_community")
+    public ResponseEntity<?> delete(int id) {
+        return ResponseEntity.ok(communityService.delete(id));
     }
 
     @GetMapping("/communities/{memberLogin}")
-    public List<Community> showAll(@PathVariable String memberLogin, Principal principal) {
-        /*if (Objects.equals(memberLogin, principal.getName()))
-            return communityService.showAll(principal);*/
+    public List<Community> showAll(@PathVariable String memberLogin) {
         return communityService.showAll(memberLogin);
+    }*/
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> show(@PathVariable int id) {
+        return ResponseEntity.ok(communityService.show(id));
     }
 
-    @GetMapping("/community/{id}")
-    public Community show(@PathVariable int id) {
-        return communityService.show(id);
-    }
-
-    @PostMapping("/join_community")
-    public void join(Principal principal, int communityId) {
-        communityService.join(principal, communityId);
+    /*@PostMapping("/join_community")
+    public ResponseEntity<?> join(String principal, int communityId) {
+        return ResponseEntity.ok(communityService.join(principal, communityId));
     }
 
     @DeleteMapping("/leave_community")
-    public void leave(Principal principal, CommunityMember communityMember) {
-        communityService.leave(principal, communityMember);
+    public ResponseEntity<?> leave(Principal principal, CommunityMember communityMember) {
+        return ResponseEntity.ok(communityService.leave(principal, communityMember));
     }
 
     @DeleteMapping("/kick_community_member")
-    public void kickCommunityMember(CommunityMember communityMember, Principal principal) {
-        communityService.kickCommunityMember(communityMember, principal);
+    public ResponseEntity<?> kickCommunityMember(CommunityMember communityMember, Principal principal) {
+        return ResponseEntity.ok(communityService.kickCommunityMember(communityMember, principal));
     }
 
     @PostMapping("/add_community_post")
-    public void createPost(CommunityPost communityPost, Principal principal) {
-        communityService.createPost(communityPost, principal);
+    public ResponseEntity<?> createPost(CommunityPost communityPost, Principal principal) {
+        return ResponseEntity.ok(communityService.createPost(communityPost, principal));
     }
 
     @DeleteMapping("/delete_community_post")
-    public void deletePost(CommunityPost communityPost, Principal principal) {
-        communityService.deletePost(communityPost, principal);
+    public ResponseEntity<?> deletePost(CommunityPost communityPost, Principal principal) {
+        return ResponseEntity.ok(communityService.deletePost(communityPost, principal));
     }
 
     @GetMapping("/find_communities")
     public List<Community> find(String keyword) {
         return communityService.find(keyword);
     }
+
+    @GetMapping("/all")
+    public List<Community> getAll() {
+        return communityService.getAll();
+    }
+
+    @GetMapping("/all_members")
+    public List<CommunityMember> getAllMembers() {
+        return communityService.getAllMembers();
+    }
+
+    @GetMapping("/all_posts")
+    public List<CommunityPost> getAllPosts() {
+        return communityService.getAllPosts();
+    }*/
 
 }

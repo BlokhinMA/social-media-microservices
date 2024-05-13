@@ -7,16 +7,43 @@
     <title>Мой профиль</title>
     <th:block th:fragment="style">
         <style>
+
+            body {
+                font-size: large;
+            }
+
             img {
-                width: 100%;
+                width: 50%;
                 height: auto;
             }
+
             form {
                 border: 1px solid black;
                 border-radius: 10px;
                 padding: 10px;
                 display: inline-block;
             }
+
+            input {
+                border: 1px solid black;
+                border-radius: 5px;
+            }
+
+            button {
+                border: 1px solid black;
+                border-radius: 5px;
+            }
+
+            td {
+                border: 1px solid black;
+            }
+
+            .container {
+                border: 1px solid black;
+                border-radius: 10px;
+                padding: 10px;
+            }
+
         </style>
     </th:block>
 </head>
@@ -31,6 +58,46 @@
     <p><a th:href="@{/my_profile}">Мой профиль</a></p>
     <p><a th:href="@{/my_albums}">Мои альбомы</a></p>
     <p><a th:href="@{/my_communities}">Мои сообщества</a></p>
+
+    <th:block th:if="${user.role} == 'ADMIN'">
+        <hr>
+        <p><a th:href="@{/admin/users}">Пользователи</a></p>
+        <p><a th:href="@{/admin/albums}">Альбомы</a></p>
+        <p><a th:href="@{/admin/photos}">Фото</a></p>
+        <p><a th:href="@{/admin/photo_tags}">Теги фото</a></p>
+        <p><a th:href="@{/admin/photo_comments}">Комментарии фото</a></p>
+        <p><a th:href="@{/admin/communities}">Сообщества</a></p>
+        <p><a th:href="@{/admin/community_members}">Участники сообществ</a></p>
+        <p><a th:href="@{/admin/community_posts}">Посты сообществ</a></p>
+    </th:block>
+
+    <button id="logout">выйти</button>
+
+    <script>
+        const button = document.getElementById('logout');
+
+        const requestOptions = {
+            headers: {
+                'Authorization': `[[${token}]]`
+            }
+        };
+
+        button.addEventListener('click', function () {
+            fetch(`http://localhost:8765/users/logout`, requestOptions)
+                .then(response => {
+                    if (response.ok) {
+                        console.log('Данные успешно отправлены на сервер');
+                        window.location.href = `http://${window.location.host}/sign_in`;
+                    } else {
+                        console.error('Произошла ошибка при отправке данных');
+                    }
+                })
+                .catch(error => {
+                    console.error('Произошла ошибка', error);
+                });
+        });
+
+    </script>
 
     <hr>
 

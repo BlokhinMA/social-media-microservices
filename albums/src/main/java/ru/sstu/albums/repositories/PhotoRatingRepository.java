@@ -1,6 +1,6 @@
 package ru.sstu.albums.repositories;
 
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -9,7 +9,7 @@ import ru.sstu.albums.models.PhotoRating;
 import java.util.List;
 
 @Repository
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class PhotoRatingRepository {
 
     private final JdbcTemplate jdbcTemplate;

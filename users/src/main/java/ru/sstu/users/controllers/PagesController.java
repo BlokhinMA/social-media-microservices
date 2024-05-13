@@ -1,118 +1,127 @@
 package ru.sstu.users.controllers;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import ru.sstu.users.models.User;
 import ru.sstu.users.services.AuthService;
 
 import java.util.Objects;
 
 @Controller
-@RequiredArgsConstructor
-@Log4j2
-//@RequestMapping("/html-pages")
+@AllArgsConstructor
 public class PagesController {
-
-    //private final fromGatewayService fromGatewayService;
-
-    /*@GetMapping("/admin_users/**")
-    public String adminUsers() {
-        return "adminUsers";
-    }*/
 
     private final AuthService authService;
 
+    @ModelAttribute("token")
+    public String token() {
+        return authService.getAccessToken();
+    }
+
+    @ModelAttribute("user")
+    public User user() {
+        return authService.getUser();
+    }
+
+
+
     @GetMapping()
     public String index() {
-        /*if (authService.getUser() != null)
-            return "redirect:/my_profile";
-        return "index";*/
         return authService.redirect("index");
     }
 
     @GetMapping("/sign_up")
     public String signUp() {
-        //return "sign_up";
         return authService.redirect("sign_up");
     }
 
     @GetMapping("/sign_in")
-    public String signIn(Model model) {
-        //model.addAttribute("csrf", fromGatewayService.getToken());
-        //return "sign_in";
+    public String signIn() {
         return authService.redirect("sign_in");
     }
 
     @GetMapping("/my_profile")
-    public String myProfile(Model model) {
-        model.addAttribute("user", authService.getUser());
-        return "my_profile";
+    public String myProfile() {
+        return authService.redirectIfNotAuth("my_profile");
     }
 
     @GetMapping("/profile/{login}")
     public String profile(@PathVariable String login) {
-        /*if (Objects.equals(signIn, fromGatewayService.getUsername()))
-            return "redirect:/my_profile";*/
+        if (user().getLogin() == null)
+            return "redirect:/sign_in";
+        if (Objects.equals(login, authService.getUser().getLogin()))
+            return "redirect:/my_profile";
         return "profile";
+    }
+
+
+
+    @GetMapping("/my_albums")
+    public String myAlbums() {
+        return authService.redirectIfNotAuth("my_albums");
     }
 
     @GetMapping("/album/*")
     public String album() {
-        return "album";
+        return authService.redirectIfNotAuth("album");
     }
 
-    @GetMapping("/albums/*")
-    public String albums(Model model) {
-        model.addAttribute("token", authService.getAccessToken());
+    @GetMapping("/albums/{userLogin}")
+    public String albums(@PathVariable String userLogin) {
+        if (user().getLogin() == null)
+            return "redirect:/sign_in";
+        if (Objects.equals(userLogin, authService.getUser().getLogin()))
+            return "redirect:/my_albums";
         return "albums";
     }
 
-    @GetMapping("/communities/*")
-    public String communities() {
+    @GetMapping("/find_albums")
+    public String findAlbums() {
+        return authService.redirectIfNotAuth("find_albums");
+    }
+
+    @GetMapping("/find_photos")
+    public String findPhotos() {
+        return authService.redirectIfNotAuth("find_photos");
+    }
+
+    @GetMapping("/photo/*")
+    public String photo() {
+        return authService.redirectIfNotAuth("photo");
+    }
+
+
+
+    @GetMapping("/community_management")
+    public String communityManagement() {
+        return authService.redirectIfNotAuth("community_management");
+    }
+
+    @GetMapping("/my_communities")
+    public String myCommunities() {
+        return authService.redirectIfNotAuth("my_communities");
+    }
+
+    @GetMapping("/communities/{memberLogin}")
+    public String communities(@PathVariable String memberLogin) {
+        if (user().getLogin() == null)
+            return "redirect:/sign_in";
+        if (Objects.equals(memberLogin, authService.getUser().getLogin()))
+            return "redirect:/my_communities";
         return "communities";
     }
 
     @GetMapping("/community/*")
     public String community() {
-        return "community";
-    }
-
-    @GetMapping("/community_management")
-    public String communityManagement() {
-        return "community_management";
-    }
-
-    @GetMapping("/find_albums")
-    public String findAlbums() {
-        return "find_albums";
+        return authService.redirectIfNotAuth("community");
     }
 
     @GetMapping("/find_communities")
     public String findCommunities() {
-        return "find_communities";
-    }
-
-    @GetMapping("/find_photos")
-    public String findPhotos() {
-        return "find_photos";
-    }
-
-    @GetMapping("/my_albums")
-    public String myAlbums() {
-        return "my_albums";
-    }
-
-    @GetMapping("/my_communities")
-    public String myCommunities() {
-        return "my_communities";
-    }
-
-    @GetMapping("/photo/*")
-    public String photo() {
-        return "photo";
+        return authService.redirectIfNotAuth("find_communities");
     }
 
 }

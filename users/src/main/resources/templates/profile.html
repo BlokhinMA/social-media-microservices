@@ -12,8 +12,14 @@
 <script>
     let currentUrl = window.location.href,
         login = currentUrl.substring(currentUrl.lastIndexOf('/') + 1);
-    fetch(`http://localhost:8765/users/profile/${login}`)
-        .then(response => response.json())
+
+    fetch(`http://localhost:8765/users/${login}`, requestOptions)
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error('Network response was not ok.');
+        })
         .then(data => {
             let body = document.querySelector('body'),
                 h1 = document.createElement('h1');
@@ -41,6 +47,7 @@
         .catch(error => {
             console.error('Произошла ошибка', error);
         });
+
 </script>
 
 </body>

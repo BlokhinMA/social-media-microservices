@@ -1,6 +1,6 @@
 package ru.sstu.albums.repositories;
 
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -9,7 +9,7 @@ import ru.sstu.albums.models.Album;
 import java.util.List;
 
 @Repository
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class AlbumRepository {
 
     private final JdbcTemplate jdbcTemplate;
@@ -43,10 +43,8 @@ public class AlbumRepository {
                 word);
     }
 
-    public Album updateAccessTypeById(Album album) {
-        return jdbcTemplate.query("call update_album_access_type_by_id(?, ?)", new BeanPropertyRowMapper<>(Album.class),
-                        album.getId())
-                .stream().findAny().orElse(null);
+    public List<Album> findAll() {
+        return jdbcTemplate.query("call find_albums()", new BeanPropertyRowMapper<>(Album.class));
     }
 
 }

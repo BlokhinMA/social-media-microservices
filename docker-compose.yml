@@ -1,0 +1,23 @@
+version: '2'
+
+services:
+  db:
+    build: mysql
+    image: mysql
+    container_name: db
+    environment:
+      MYSQL_DB: social_media
+      MYSQL_USER: root
+      MYSQL_PASSWORD: 1234
+  server:
+    build:
+      dockerfile: server/Dockerfile
+    container_name: server
+    ports:
+      - "8761:8761"
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/social_media
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 1234

@@ -10,10 +10,17 @@
 <th:block th:replace="~{my_profile :: header}"></th:block>
 
 <script>
+
     let currentUrl = window.location.href,
         id = currentUrl.substring(currentUrl.lastIndexOf('/') + 1);
-    fetch(`http://localhost:8765/albums/album/${id}`)
-        .then(response => response.json())
+
+    fetch(`http://localhost:8765/albums/${id}`, requestOptions)
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error('Network response was not ok.');
+        })
         .then(data => {
             let body = document.querySelector('body'),
                 h1 = document.createElement('h1');
@@ -28,7 +35,20 @@
                 a = document.createElement('a');
                 a.href = `http://${host}/photo/${photos[key].id}`;
                 img = document.createElement('img');
-                img.src = `http://localhost:8765/albums/photo_entity/${photos[key].id}`;
+
+                fetch(`http://localhost:8765/albums/photo_entity/${photos[key].id}`, requestOptions)
+                    .then(response => {
+                        if (response.ok)
+                            return response.blob();
+                        throw new Error('Network response was not ok.');
+                    })
+                    .then(blob => {
+                        img.src = URL.createObjectURL(blob);
+                    })
+                    .catch(error => {
+                        console.error(error);
+                    });
+
                 a.appendChild(img);
                 body.appendChild(a);
             }
@@ -36,6 +56,7 @@
         .catch(error => {
             console.error('Произошла ошибка', error);
         });
+
 </script>
 
 </body>

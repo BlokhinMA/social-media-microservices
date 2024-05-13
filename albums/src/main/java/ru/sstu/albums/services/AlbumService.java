@@ -1,20 +1,19 @@
 package ru.sstu.albums.services;
 
+import lombok.AllArgsConstructor;
 import ru.sstu.albums.models.Album;
 import ru.sstu.albums.models.Photo;
 import ru.sstu.albums.repositories.*;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 @Service
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class AlbumService {
 
     private final AlbumRepository albumRepository;
@@ -42,10 +41,6 @@ public class AlbumService {
         return photo;
     }
 
-    public List<Album> showAll(Principal principal) {
-        return albumRepository.findAllByUserLogin(principal.getName());
-    }
-
     public List<Album> showAll(String userLogin) {
         return albumRepository.findAllByUserLogin(userLogin);
     }
@@ -56,7 +51,7 @@ public class AlbumService {
         return album;
     }
 
-    public void delete(int id, Principal principal) {
+    public Album delete(int id, String principal) {
         List<Photo> photos = photoRepository.findAllByAlbumId(id);
         for (Photo photo : photos) {
             int photoId = photo.getId();
@@ -66,11 +61,12 @@ public class AlbumService {
         }
         Album deletedAlbum = albumRepository.deleteById(id);
         deletedAlbum.setPhotos(photos);
+        return deletedAlbum;
     }
 
-    public void createPhotos(List<MultipartFile> files, int albumId/*, Principal principal*/) throws IOException {
+    public List<Photo> createPhotos(List<MultipartFile> files, int albumId/*, Principal principal*/) throws IOException {
         if (Objects.requireNonNull(files.getFirst().getOriginalFilename()).isEmpty())
-            return;
+            return null;
         List<Photo> photos = new ArrayList<>();
         List<Photo> createdPhotos = new ArrayList<>();
         for (int i = 0; i < files.size(); i++) {
@@ -80,12 +76,17 @@ public class AlbumService {
             createdPhoto.setAlbum(albumRepository.findById(createdPhoto.getAlbumId()));
             createdPhotos.add(createdPhoto);
         }
+        return createdPhotos;
     }
 
     public List<Album> find(String word) {
         if (word != null && !word.isEmpty())
             return albumRepository.findAllLikeName(word);
         return null;
+    }
+
+    public List<Album> getAll() {
+        return albumRepository.findAll();
     }
 
 }

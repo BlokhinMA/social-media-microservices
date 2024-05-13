@@ -1,18 +1,15 @@
 package ru.sstu.users.controllers;
 
 import lombok.AllArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.sstu.users.models.AuthResponse;
-import ru.sstu.users.models.LogRequest;
 import ru.sstu.users.models.User;
 import ru.sstu.users.services.AuthService;
 
 @RestController
 @RequestMapping("/users")
 @AllArgsConstructor
-@Log4j2
 public class AuthController {
 
     private final AuthService authService;
@@ -23,7 +20,7 @@ public class AuthController {
     }
 
     @PostMapping("/sign_in")
-    public ResponseEntity<?> signIn(@RequestBody LogRequest request) {
+    public ResponseEntity<?> signIn(@RequestBody User request) {
         AuthResponse authResponse = authService.auth(request);
         if (authResponse != null)
             return ResponseEntity.ok(authResponse);
@@ -33,6 +30,12 @@ public class AuthController {
     @GetMapping("/get_token")
     public String getToken() {
         return authService.getAccessToken();
+    }
+
+    @GetMapping("/logout")
+    public ResponseEntity<?> logout() {
+        authService.logout();
+        return ResponseEntity.ok().build();
     }
 
 }

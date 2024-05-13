@@ -1,60 +1,30 @@
 package ru.sstu.users.services;
 
-import ru.sstu.users.models.enums.Role;
-import ru.sstu.users.repositories.RoleRepository;
+import lombok.AllArgsConstructor;
 import ru.sstu.users.repositories.UserRepository;
 import ru.sstu.users.models.User;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.security.Principal;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Service
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
-    /*private final RoleRepository roleRepository;
-    private final PasswordEncoder passwordEncoder;*/
-
-    public User create(User user) {
-        if (userRepository.findByLogin(user.getLogin()) != null || userRepository.findByEmail(user.getEmail()) != null)
-            return null;
-        //user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRole("USER");
-        User createdUser = userRepository.save(user);
-        /*List<String> listRoles = new ArrayList<>();
-        listRoles.add(roleRepository.save(Role.ROLE_USER, createdUser.getLogin()));
-        Set<Role> roles = new HashSet<>();
-        for (String listRole : listRoles) {
-            roles.add(Role.valueOf(listRole));
-        }
-        createdUser.setRoles(roles);*/
-        return createdUser;
-    }
-
-    public User getUserByPrincipal(Principal principal) {
-        User user = userRepository.findByLogin(principal.getName());
-        user.setEmail(null);
-        user.setPassword(null);
-        return user;
-    }
 
     public User getUserByLogin(String login) {
         User user = userRepository.findByLogin(login);
-        user.setEmail(null);
-        user.setPassword(null);
-        return user;
+        if (user != null) {
+            user.setEmail(null);
+            user.setPassword(null);
+            return user;
+        }
+        return null;
     }
 
-    public User getUserByLoginForAuth(String login) {
-        User user = userRepository.findByLogin(login);
-        return new User(user.getLogin(), user.getPassword(), user.getRole());
+    public List<User> getAll() {
+        return userRepository.findAll();
     }
 
 }

@@ -2,20 +2,18 @@ package ru.sstu.users.services;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.extern.log4j.Log4j2;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.stereotype.Service;
-import ru.sstu.users.models.LogRequest;
 import ru.sstu.users.models.AuthResponse;
 import ru.sstu.users.models.User;
 import ru.sstu.users.repositories.UserRepository;
 
+import java.util.Objects;
+
 @Service
 @AllArgsConstructor
-@Log4j2
 public class AuthService {
 
-    //private final RestTemplate restTemplate;
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
     @Getter
@@ -26,8 +24,8 @@ public class AuthService {
 
     public AuthResponse register(User request) {
         request.setPassword(BCrypt.hashpw(request.getPassword(), BCrypt.gensalt()));
-        //User registeredUser = restTemplate.postForObject("http://users/users/sign_up", request, User.class);
-        User registeredUser =  userRepository.save(request);
+        request.setRole("USER");
+        User registeredUser = userRepository.save(request);
 
         assert registeredUser != null;
         String accessToken = jwtUtil.generate(String.valueOf(registeredUser.getId()), registeredUser.getRole(), "ACCESS");
@@ -36,8 +34,7 @@ public class AuthService {
         return new AuthResponse(accessToken, refreshToken);
     }
 
-    public AuthResponse auth(LogRequest request) {
-        //User user = restTemplate.getForObject("http://users/users/auth_" + request.getLogin(), User.class);
+    public AuthResponse auth(User request) {
         User authorizedUser = userRepository.findByLogin(request.getLogin());
 
         if (authorizedUser != null && BCrypt.checkpw(request.getPassword(), authorizedUser.getPassword())) {
@@ -50,10 +47,29 @@ public class AuthService {
         } else return null;
     }
 
-    public String redirect(String path) {
-        if (user.getLogin() != null)
+    public void logout() {
+        accessToken = "";
+        user = new User();
+    }
+
+    public String redirect(String page) {
+        if (!accessToken.isEmpty())
             return "redirect:/my_profile";
-        return path;
+        return page;
+    }
+
+    public String redirectIfNotAuth(String page) {
+        if (accessToken.isEmpty())
+            return "redirect:/sign_in";
+        return page;
+    }
+
+    public String redirectIfNotAdmin(String page) {
+        if (accessToken.isEmpty())
+            return "redirect:/sign_in";
+        if (Objects.equals(user.getRole(), "USER"))
+            return "redirect:/my_profile";
+        return page;
     }
 
 }

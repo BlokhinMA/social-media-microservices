@@ -28,6 +28,41 @@
 </form>
 
 <script>
+
+    fetch(`http://localhost:8765/albums/albums/[[${user.login}]]`, requestOptions)
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error('Network response was not ok.');
+        })
+        .then(data => {
+            let body = document.querySelector('body'),
+                h1 = document.createElement('h1');
+
+            if (Object.keys(data).length === 0) {
+                h1.textContent = `Вы ещё не добавили альбомы`;
+                body.appendChild(h1);
+            } else {
+                let key,
+                    p,
+                    a,
+                    host = window.location.host;
+                for (key in data) {
+                    p = document.createElement('p');
+                    a = document.createElement('a');
+                    a.href = `http://${host}/album/${data[key].id}`;
+                    a.textContent = `${data[key].name}`;
+                    p.appendChild(a);
+                    body.appendChild(p);
+                }
+            }
+
+        })
+        .catch(error => {
+            console.error('Произошла ошибка', error);
+        });
+
     const form = document.getElementById('addAlbum');
 
     form.addEventListener('submit', function(event) {
@@ -44,27 +79,27 @@
         console.log(data);
 
         fetch('http://localhost:8765/albums/add_album', {
+            headers: {
+                'Authorization': `[[${token}]]`
+            },
             method: 'POST',
             body: data,
         })
-            /*.then(response => {
+            .then(response => {
                 if (response.ok) {
-                    console.log('Данные успешно отправлены на сервер');
-                } else {
-                    console.error('Произошла ошибка при отправке данных');
+                    return response.json();
                 }
-            })*/
-            .then(response => response.json())
+                throw new Error('Network response was not ok.');
+            })
             .then(data => {
-                console.log(data);
+                //console.log(data);
             })
             .catch(error => {
                 console.error('Произошла ошибка:', error);
             });
     });
-</script>
 
-<p>Мои альбомы</p>
+</script>
 
 </body>
 </html>

@@ -1,22 +1,21 @@
 package ru.sstu.albums.services;
 
+import lombok.AllArgsConstructor;
 import ru.sstu.albums.models.Photo;
 import ru.sstu.albums.models.PhotoComment;
 import ru.sstu.albums.models.PhotoRating;
 import ru.sstu.albums.models.PhotoTag;
 import ru.sstu.albums.repositories.*;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.sstu.albums.repositories.PhotoRepository;
 import ru.sstu.albums.repositories.PhotoCommentRepository;
 import ru.sstu.albums.repositories.PhotoRatingRepository;
 import ru.sstu.albums.repositories.PhotoTagRepository;
 
-import java.security.Principal;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class PhotoService {
 
     private final AlbumRepository albumRepository;
@@ -29,20 +28,20 @@ public class PhotoService {
         return photoRepository.findById(id);
     }
 
-    public Photo show(int id/*, Principal principal*/) {
+    public Photo show(int id, String principal) {
         Photo photo = photoRepository.findById(id);
         photo.setBytes(null);
         photo.setTags(photoTagRepository.findAllByPhotoId(id));
-        //photo.setUserRating(photoRatingRepository.findByRatingUserLoginAndPhotoId(principal.getName(), id));
+        photo.setUserRating(photoRatingRepository.findByRatingUserLoginAndPhotoId(principal, id));
         photo.setRating(photoRatingRepository.calculateAverageRatingByPhotoId(id));
         photo.setComments(photoCommentRepository.findAllByPhotoId(id));
         photo.setAlbum(albumRepository.findById(photo.getAlbumId()));
         return photo;
     }
 
-    public void delete(Photo photo, Principal principal) {
+    public Photo delete(Photo photo, String principal) {
         if (albumRepository.findById(photo.getAlbumId()) == null)
-            return;
+            return null;
         int photoId = photo.getId();
         List<PhotoTag> tags = photoTagRepository.findAllByPhotoId(photoId);
         List<PhotoRating> ratings = photoRatingRepository.findAllByPhotoId(photoId);
@@ -51,59 +50,86 @@ public class PhotoService {
         deletedPhoto.setTags(tags);
         deletedPhoto.setRatings(ratings);
         deletedPhoto.setComments(comments);
+        return deletedPhoto;
     }
 
-    public void createTag(PhotoTag photoTag, Principal principal) {
+    public PhotoTag createTag(PhotoTag photoTag, String principal) {
         if (photoTagRepository.findByTagAndPhotoId(photoTag) != null)
-            return;
+            return null;
         PhotoTag createdPhotoTag = photoTagRepository.save(photoTag);
+        return createdPhotoTag;
     }
 
-    public void deleteTag(PhotoTag photoTag, Principal principal) {
+    public PhotoTag deleteTag(PhotoTag photoTag, String principal) {
         if (photoRepository.findById(photoTag.getPhotoId()) == null)
-            return;
+            return null;
         PhotoTag deletedPhotoTag = photoTagRepository.deleteById(photoTag.getId());
+        return deletedPhotoTag;
     }
 
-    public void createRating(PhotoRating photoRating, Principal principal) {
+    public PhotoRating createRating(PhotoRating photoRating, String principal) {
         if (photoRepository.findById(photoRating.getPhotoId()) == null)
-            return;
-        photoRating.setRatingUserLogin(principal.getName());
+            return null;
+        photoRating.setRatingUserLogin(principal);
         PhotoRating createdPhotoRating = photoRatingRepository.save(photoRating);
+        return createdPhotoRating;
     }
 
-    public void updateRating(PhotoRating photoRating, Principal principal) {
+    public PhotoRating updateRating(PhotoRating photoRating, String principal) {
         if (photoRepository.findById(photoRating.getPhotoId()) == null)
-            return;
+            return null;
         PhotoRating updatedPhotoRating = photoRatingRepository.updateRatingById(photoRating);
+        return updatedPhotoRating;
     }
 
-    public void deleteRating(PhotoRating photoRating, Principal principal) {
+    public PhotoRating deleteRating(PhotoRating photoRating, String principal) {
         if (photoRepository.findById(photoRating.getPhotoId()) == null)
-            return;
+            return null;
         PhotoRating deletedPhotoRating = photoRatingRepository.deleteById(photoRating.getId());
+        return deletedPhotoRating;
     }
 
-    public void createComment(PhotoComment photoComment, Principal principal) {
+    public PhotoComment createComment(PhotoComment photoComment, String principal) {
         photoComment.setComment(photoComment.getComment());
-        photoComment.setCommentingUserLogin(principal.getName());
+        photoComment.setCommentingUserLogin(principal);
         photoComment.setPhotoId(photoComment.getPhotoId());
         PhotoComment createdPhotoComment = photoCommentRepository.save(photoComment);
+        return createdPhotoComment;
     }
 
-    public void deleteComment(PhotoComment photoComment, Principal principal) {
+    public PhotoComment deleteComment(PhotoComment photoComment, String principal) {
         if (photoRepository.findById(photoComment.getPhotoId()) == null)
-            return;
+            return null;
         PhotoComment deletedPhotoComment = photoCommentRepository.deleteById(photoComment.getId());
+        return deletedPhotoComment;
     }
 
-    public void find(String searchTerm, String word) {
+    public List<Photo> find(String searchTerm, String word) {
         if (searchTerm != null && !searchTerm.isEmpty() && word != null && !word.isEmpty())
             switch (searchTerm) {
-                case "creationTimeStamp" -> photoRepository.findAllLikeCreationTimeStamp(word);
-                case "tags" -> photoRepository.findAllLikeTags(word);
-                case "comments" -> photoRepository.findAllLikeComments(word);
+                case "creationTimeStamp" -> {
+                    return photoRepository.findAllLikeCreationTimeStamp(word);
+                }
+                case "tags" -> {
+                    return photoRepository.findAllLikeTags(word);
+                }
+                case "comments" -> {
+                    return photoRepository.findAllLikeComments(word);
+                }
             }
+        return null;
+    }
+
+    public List<Photo> getAll() {
+        return photoRepository.findAll();
+    }
+
+    public List<PhotoTag> getAllTags() {
+        return photoTagRepository.findAll();
+    }
+
+    public List<PhotoComment> getAllComments() {
+        return photoCommentRepository.findAll();
     }
 
 }

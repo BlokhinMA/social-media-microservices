@@ -18,9 +18,9 @@ public class Photo {
     private int albumId;
     private List<PhotoTag> tags;
     private List<PhotoRating> ratings;
+    private List<PhotoComment> comments;
     private PhotoRating userRating;
     private Double rating;
-    private List<PhotoComment> comments;
     private Album album;
 
 }

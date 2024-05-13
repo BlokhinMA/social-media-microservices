@@ -1,6 +1,6 @@
 package ru.sstu.albums.repositories;
 
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -9,7 +9,7 @@ import ru.sstu.albums.models.PhotoComment;
 import java.util.List;
 
 @Repository
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class PhotoCommentRepository {
 
     private final JdbcTemplate jdbcTemplate;
@@ -31,6 +31,10 @@ public class PhotoCommentRepository {
         return jdbcTemplate.query("call delete_photo_comment_by_id(?)", new BeanPropertyRowMapper<>(PhotoComment.class),
                         id)
                 .stream().findAny().orElse(null);
+    }
+
+    public List<PhotoComment> findAll() {
+        return jdbcTemplate.query("call find_photo_comments()", new BeanPropertyRowMapper<>(PhotoComment.class));
     }
 
 }

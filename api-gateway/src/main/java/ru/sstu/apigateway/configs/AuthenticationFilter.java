@@ -1,7 +1,6 @@
 package ru.sstu.apigateway.configs;
 
 import lombok.AllArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -17,7 +16,6 @@ import ru.sstu.apigateway.services.JwtUtils;
 @RefreshScope
 @Component
 @AllArgsConstructor
-@Log4j2
 public class AuthenticationFilter implements GatewayFilter {
 
     private final RouterValidator validator;
@@ -33,23 +31,9 @@ public class AuthenticationFilter implements GatewayFilter {
 
             final String token = request.getHeaders().getOrEmpty("Authorization").getFirst();
 
-            log.error(token);
-
             if (jwtUtils.isExpired(token)) {
                 return onError(exchange);
             }
-
-
-
-            /*// Получите токен после успешной аутентификации
-            String newToken = "your_new_token_here";
-
-            // Добавьте новый токен в заголовок "Authorization"
-            ServerHttpRequest modifiedRequest = request.mutate()
-                    .header("Authorization", "Bearer " + newToken)
-                    .build();
-
-            return chain.filter(exchange.mutate().request(modifiedRequest).build());*/
 
         }
 

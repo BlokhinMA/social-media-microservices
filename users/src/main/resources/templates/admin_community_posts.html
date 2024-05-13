@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{my_profile :: meta}"></th:block>
+    <title>Пользователи</title>
+    <th:block th:replace="~{my_profile :: style}"></th:block>
+</head>
+<body>
+
+<h1>Посты сообществ</h1>
+
+<th:block th:replace="~{my_profile :: header}"></th:block>
+
+<script>
+
+    fetch(`http://localhost:8765/communities/all_posts`, requestOptions)
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error('Network response was not ok.');
+        })
+        .then(data => {
+            let body = document.querySelector('body');
+            let table = document.createElement('table');
+
+            let key,
+                tr,
+                td;
+
+            tr = document.createElement('tr');
+
+            td = document.createElement('td');
+            td.textContent = 'id';
+            tr.appendChild(td);
+
+            td = document.createElement('td');
+            td.textContent = 'post_text';
+            tr.appendChild(td);
+
+            td = document.createElement('td');
+            td.textContent = 'creation_time_stamp';
+            tr.appendChild(td);
+
+            td = document.createElement('td');
+            td.textContent = 'author_login';
+            tr.appendChild(td);
+
+            td = document.createElement('td');
+            td.textContent = 'community_id';
+            tr.appendChild(td);
+
+            table.appendChild(tr);
+            body.appendChild(table);
+
+            for (key in data) {
+                tr = document.createElement('tr');
+
+                td = document.createElement('td');
+                td.textContent = data[key].id;
+                tr.appendChild(td);
+
+                td = document.createElement('td');
+                td.textContent = data[key].postText;
+                tr.appendChild(td);
+
+                td = document.createElement('td');
+                td.textContent = data[key].creationTimeStamp;
+                tr.appendChild(td);
+
+                td = document.createElement('td');
+                td.textContent = data[key].authorLogin;
+                tr.appendChild(td);
+
+                td = document.createElement('td');
+                td.textContent = data[key].communityId;
+                tr.appendChild(td);
+
+                table.appendChild(tr);
+            }
+        })
+        .catch(error => {
+            console.error('Произошла ошибка', error);
+        });
+
+</script>
+
+</body>
+</html>

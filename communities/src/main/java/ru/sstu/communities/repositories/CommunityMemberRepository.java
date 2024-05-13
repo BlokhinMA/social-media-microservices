@@ -1,6 +1,6 @@
 package ru.sstu.communities.repositories;
 
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -9,7 +9,7 @@ import ru.sstu.communities.models.CommunityMember;
 import java.util.List;
 
 @Repository
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class CommunityMemberRepository {
 
     private final JdbcTemplate jdbcTemplate;
@@ -44,6 +44,10 @@ public class CommunityMemberRepository {
         return jdbcTemplate.query("call delete_community_member_by_id(?)", new BeanPropertyRowMapper<>(CommunityMember.class),
                         id)
                 .stream().findAny().orElse(null);
+    }
+
+    public List<CommunityMember> findAll() {
+        return jdbcTemplate.query("call find_community_members()", new BeanPropertyRowMapper<>(CommunityMember.class));
     }
 
 }

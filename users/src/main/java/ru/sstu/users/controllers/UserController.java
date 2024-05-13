@@ -1,38 +1,27 @@
 package ru.sstu.users.controllers;
 
-import org.springframework.http.ResponseEntity;
+import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.sstu.users.models.User;
 import ru.sstu.users.services.UserService;
-import lombok.RequiredArgsConstructor;
 
-import java.security.Principal;
+import java.util.List;
 
 @RestController
 @RequestMapping("/users")
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class UserController {
 
     private final UserService userService;
 
-    /*@PostMapping("/sign_up")
-    public ResponseEntity<?> create(@RequestBody User user) {
-        return ResponseEntity.ok(userService.create(user));
-    }*/
-
-    @GetMapping("/my_profile")
-    public User getUserByPrincipal(Principal principal) {
-        return userService.getUserByPrincipal(principal);
-    }
-
     @GetMapping("/{login}")
-    public User getUserByLogin(@PathVariable String login, Principal principal) {
+    public User getUserByLogin(@PathVariable String login) {
         return userService.getUserByLogin(login);
     }
 
-    /*@GetMapping("/auth_{signIn}")
-    public User getUserByLoginForAuth(@PathVariable String signIn) {
-        return userService.getUserByLoginForAuth(signIn);
-    }*/
+    @GetMapping("/all")
+    public List<User> getAll() {
+        return userService.getAll();
+    }
 
 }
