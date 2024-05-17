@@ -33,8 +33,8 @@ public class AuthController {
     }
 
     @GetMapping("/logout")
-    public ResponseEntity<?> logout() {
-        authService.logout();
+    public ResponseEntity<?> logout(@RequestParam String login) {
+        authService.logout(login);
         return ResponseEntity.ok().build();
     }
 

@@ -12,8 +12,8 @@ public class LoggingController {
     private final LoggingService loggingService;
 
     @PostMapping()
-    public void get(@RequestBody String string) {
-        loggingService.get(string);
+    public void get(@RequestBody String string, @RequestParam("for_audit") boolean forAudit) {
+        loggingService.get(string, forAudit);
     }
 
 }

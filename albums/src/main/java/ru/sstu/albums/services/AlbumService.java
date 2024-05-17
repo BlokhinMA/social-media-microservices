@@ -1,6 +1,7 @@
 package ru.sstu.albums.services;
 
 import lombok.AllArgsConstructor;
+import org.springframework.web.client.RestTemplate;
 import ru.sstu.albums.models.Album;
 import ru.sstu.albums.models.Photo;
 import ru.sstu.albums.repositories.*;
@@ -21,15 +22,8 @@ public class AlbumService {
     private final PhotoTagRepository photoTagRepository;
     private final PhotoRatingRepository photoRatingRepository;
     private final PhotoCommentRepository photoCommentRepository;
-
-    public Album create(String name, List<MultipartFile> files/*, Principal principal*/) throws IOException {
-        Album album = new Album();
-        album.setName(name);
-        album.setUserLogin(/*principal.getName()*/"user");
-        Album createdAlbum = albumRepository.save(album);
-        createPhotos(files, createdAlbum.getId()/*, principal*/);
-        return createdAlbum;
-    }
+    private final RestTemplate restTemplate;
+    private final String url = "http://localhost:8765/logging?for_audit=";
 
     private Photo toPhotoEntity(MultipartFile file) throws IOException {
         Photo photo = new Photo();
@@ -41,17 +35,30 @@ public class AlbumService {
         return photo;
     }
 
-    public List<Album> showAll(String userLogin) {
-        return albumRepository.findAllByUserLogin(userLogin);
+    public Album create(String name, List<MultipartFile> files, String login) throws IOException {
+        Album album = new Album();
+        album.setName(name);
+        album.setUserLogin(login);
+        Album createdAlbum = albumRepository.save(album);
+        restTemplate.postForObject(url + "true", "Пользователь " + login + " добавил альбом: " + createdAlbum, String.class);
+        createPhotos(files, createdAlbum.getId(), createdAlbum.getUserLogin());
+        return createdAlbum;
     }
 
-    public Album show(int id) {
+    public List<Album> showAll(String userLogin) {
+        List<Album> albums = albumRepository.findAllByUserLogin(userLogin);
+        restTemplate.postForObject(url + "false", "Пользователь " + userLogin + " обратился к списку альбомов: " + albums, String.class);
+        return albums;
+    }
+
+    public Album show(int id, String login) {
         Album album = albumRepository.findById(id);
+        restTemplate.postForObject(url + "false", "Пользователь " + login + " обратился к альбому: " + album, String.class);
         album.setPhotos(photoRepository.findAllByAlbumId(id));
         return album;
     }
 
-    public Album delete(int id, String principal) {
+    public Album delete(int id) {
         List<Photo> photos = photoRepository.findAllByAlbumId(id);
         for (Photo photo : photos) {
             int photoId = photo.getId();
@@ -61,10 +68,11 @@ public class AlbumService {
         }
         Album deletedAlbum = albumRepository.deleteById(id);
         deletedAlbum.setPhotos(photos);
+        restTemplate.postForObject(url + "true", "Пользователь " + deletedAlbum.getUserLogin() + " удалил альбом: " + deletedAlbum, String.class);
         return deletedAlbum;
     }
 
-    public List<Photo> createPhotos(List<MultipartFile> files, int albumId/*, Principal principal*/) throws IOException {
+    public List<Photo> createPhotos(List<MultipartFile> files, int albumId, String login) throws IOException {
         if (Objects.requireNonNull(files.getFirst().getOriginalFilename()).isEmpty())
             return null;
         List<Photo> photos = new ArrayList<>();
@@ -76,17 +84,23 @@ public class AlbumService {
             createdPhoto.setAlbum(albumRepository.findById(createdPhoto.getAlbumId()));
             createdPhotos.add(createdPhoto);
         }
+        restTemplate.postForObject(url + "true", "Пользователь " + login + " добавил фото: " + createdPhotos, String.class);
         return createdPhotos;
     }
 
-    public List<Album> find(String word) {
-        if (word != null && !word.isEmpty())
-            return albumRepository.findAllLikeName(word);
+    public List<Album> find(String word, String login) {
+        if (word != null && !word.isEmpty()) {
+            List<Album> albums = albumRepository.findAllLikeName(word);
+            restTemplate.postForObject(url + "false", "Пользователь " + login + " выполнил поиск альбомов: " + albums, String.class);
+            return albums;
+        }
         return null;
     }
 
-    public List<Album> getAll() {
-        return albumRepository.findAll();
+    public List<Album> getAll(String login) {
+        List<Album> albums = albumRepository.findAll();
+        restTemplate.postForObject(url + "false", "Админ " + login + " обратился к списку всех альбомов: " + albums, String.class);
+        return albums;
     }
 
 }

@@ -22,33 +22,33 @@ public class AlbumController {
     }
 
     @PostMapping("/add_album")
-    public ResponseEntity<?> create(@RequestParam String name, @RequestBody List<MultipartFile> files) throws IOException {
-        return ResponseEntity.ok(albumService.create(name, files));
+    public ResponseEntity<?> create(@RequestParam String name, @RequestBody List<MultipartFile> files, @RequestParam String login) throws IOException {
+        return ResponseEntity.ok(albumService.create(name, files, login));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> show(@PathVariable int id) {
-        return ResponseEntity.ok(albumService.show(id));
+    public ResponseEntity<?> show(@PathVariable int id, @RequestParam String login) {
+        return ResponseEntity.ok(albumService.show(id, login));
     }
 
     @PostMapping("/create_photos")
-    public ResponseEntity<?> createPhotos(List<MultipartFile> files, int albumId, String principal) throws IOException {
-        return ResponseEntity.ok(albumService.createPhotos(files, albumId/*, principal*/));
+    public ResponseEntity<?> createPhotos(@RequestBody List<MultipartFile> files, @RequestParam int albumId, @RequestParam String login) throws IOException {
+        return ResponseEntity.ok(albumService.createPhotos(files, albumId, login));
     }
 
     @DeleteMapping("/delete_album")
-    public ResponseEntity<?> deleteAlbum(int id, String principal) {
-        return ResponseEntity.ok(albumService.delete(id, principal));
+    public ResponseEntity<?> deleteAlbum(@RequestParam int id) {
+        return ResponseEntity.ok(albumService.delete(id));
     }
 
-    @GetMapping("/find_albums/{keyword}")
-    public ResponseEntity<?> findAlbums(@PathVariable String keyword) {
-        return ResponseEntity.ok(albumService.find(keyword));
+    @GetMapping("/find_albums")
+    public ResponseEntity<?> findAlbums(@RequestParam String keyword, @RequestParam String login) {
+        return ResponseEntity.ok(albumService.find(keyword, login));
     }
 
     @GetMapping("/all")
-    public ResponseEntity<?> getAll() {
-        return ResponseEntity.ok(albumService.getAll());
+    public ResponseEntity<?> getAll(@RequestParam String login) {
+        return ResponseEntity.ok(albumService.getAll(login));
     }
 
 }

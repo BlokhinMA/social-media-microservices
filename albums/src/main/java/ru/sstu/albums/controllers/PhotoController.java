@@ -31,68 +31,68 @@ public class PhotoController {
     }
 
     @GetMapping("/photo/{id}")
-    public ResponseEntity<?> show(@PathVariable int id, String principal) {
-        return ResponseEntity.ok(photoService.show(id, principal));
+    public ResponseEntity<?> show(@PathVariable int id, @RequestParam String login) {
+        return ResponseEntity.ok(photoService.show(id, login));
     }
 
     @DeleteMapping("/delete_photo")
-    public ResponseEntity<?> delete(Photo photo, String principal) {
-        return ResponseEntity.ok(photoService.delete(photo, principal));
+    public ResponseEntity<?> delete(@RequestBody Photo photo) {
+        return ResponseEntity.ok(photoService.delete(photo));
     }
 
     @PostMapping("/add_photo_tag")
-    public ResponseEntity<?> createTag(PhotoTag photoTag, String principal) {
-        return ResponseEntity.ok(photoService.createTag(photoTag, principal));
+    public ResponseEntity<?> createTag(@RequestBody PhotoTag photoTag) {
+        return ResponseEntity.ok(photoService.createTag(photoTag));
     }
 
     @DeleteMapping("/delete_photo_tag")
-    public ResponseEntity<?> deleteTag(PhotoTag photoTag, String principal) {
-        return ResponseEntity.ok(photoService.deleteTag(photoTag, principal));
+    public ResponseEntity<?> deleteTag(@RequestBody PhotoTag photoTag) {
+        return ResponseEntity.ok(photoService.deleteTag(photoTag));
     }
 
     @PostMapping("/add_photo_rating")
-    public ResponseEntity<?> createRating(PhotoRating photoRating, String principal) {
-        return ResponseEntity.ok(photoService.createRating(photoRating, principal));
+    public ResponseEntity<?> createRating(@RequestBody PhotoRating photoRating) {
+        return ResponseEntity.ok(photoService.createRating(photoRating));
     }
 
     @PostMapping("/update_photo_rating")
-    public ResponseEntity<?> updateRating(PhotoRating photoRating, String principal) {
-        return ResponseEntity.ok(photoService.updateRating(photoRating, principal));
+    public ResponseEntity<?> updateRating(@RequestBody PhotoRating photoRating) {
+        return ResponseEntity.ok(photoService.updateRating(photoRating));
     }
 
     @DeleteMapping("/delete_photo_rating")
-    public ResponseEntity<?> deleteRating(PhotoRating photoRating, String principal) {
-        return ResponseEntity.ok(photoService.deleteRating(photoRating, principal));
+    public ResponseEntity<?> deleteRating(@RequestBody PhotoRating photoRating) {
+        return ResponseEntity.ok(photoService.deleteRating(photoRating));
     }
 
     @PostMapping("/add_photo_comment")
-    public ResponseEntity<?> createComment(PhotoComment photoComment, String principal) {
-        return ResponseEntity.ok(photoService.createComment(photoComment, principal));
+    public ResponseEntity<?> createComment(@RequestBody PhotoComment photoComment) {
+        return ResponseEntity.ok(photoService.createComment(photoComment));
     }
 
     @DeleteMapping("/delete_photo_comment")
-    public ResponseEntity<?> deleteComment(PhotoComment photoComment, String principal) {
-        return ResponseEntity.ok(photoService.deleteComment(photoComment, principal));
+    public ResponseEntity<?> deleteComment(@RequestBody PhotoComment photoComment) {
+        return ResponseEntity.ok(photoService.deleteComment(photoComment));
     }
 
     @GetMapping("/find_photos")
-    public ResponseEntity<?> find(String searchTerm, String keyword) {
-        return ResponseEntity.ok(photoService.find(searchTerm, keyword));
+    public ResponseEntity<?> find(@RequestParam("search_term") String searchTerm, @RequestParam String keyword, @RequestParam String login) {
+        return ResponseEntity.ok(photoService.find(searchTerm, keyword, login));
     }
 
     @GetMapping("/all_photos")
-    public ResponseEntity<?> getAll() {
-        return ResponseEntity.ok(photoService.getAll());
+    public ResponseEntity<?> getAll(@RequestParam String login) {
+        return ResponseEntity.ok(photoService.getAll(login));
     }
 
     @GetMapping("/all_photo_tags")
-    public ResponseEntity<?> getAllTags() {
-        return ResponseEntity.ok(photoService.getAllTags());
+    public ResponseEntity<?> getAllTags(@RequestParam String login) {
+        return ResponseEntity.ok(photoService.getAllTags(login));
     }
 
     @GetMapping("/all_photo_comments")
-    public ResponseEntity<?> getAllComments() {
-        return ResponseEntity.ok(photoService.getAllComments());
+    public ResponseEntity<?> getAllComments(@RequestParam String login) {
+        return ResponseEntity.ok(photoService.getAllComments(login));
     }
 
 }

@@ -10,7 +10,6 @@ import ru.sstu.communities.repositories.CommunityRepository;
 import ru.sstu.communities.repositories.CommunityMemberRepository;
 import org.springframework.stereotype.Service;
 
-import java.security.Principal;
 import java.util.List;
 
 @Service
@@ -21,20 +20,23 @@ public class CommunityService {
     private final CommunityMemberRepository communityMemberRepository;
     private final CommunityPostRepository communityPostRepository;
     private final RestTemplate restTemplate;
+    private final String url = "http://localhost:8765/logging?for_audit=";
 
     public List<Community> showAllOwn(String userLogin) {
         List<Community> communities = communityRepository.findAllByCreatorLogin(userLogin);
-        restTemplate.postForObject("http://localhost:8765/logging", "Пользователь " + userLogin + " обратился к списку своих сообществ: " + communities, String.class);
+        restTemplate.postForObject(url + "false", "Пользователь " + userLogin + " обратился к списку своих сообществ: " + communities, String.class);
         return communities;
     }
 
     public List<Community> showAll(String memberLogin) {
-        return communityRepository.findAllByMemberLogin(memberLogin);
+        List<Community> communities = communityRepository.findAllByMemberLogin(memberLogin);
+        restTemplate.postForObject(url + "false", "Пользователь " + memberLogin + " обратился к списку сообществ: " + communities, String.class);
+        return communities;
     }
 
     public Community create(Community community) {
-        //community.setCreatorLogin(principal);
         Community createdCommunity = communityRepository.save(community);
+        restTemplate.postForObject(url + "true", "Пользователь " + createdCommunity.getCreatorLogin() + " создал сообщество: " + createdCommunity, String.class);
         return createdCommunity;
     }
 
@@ -44,24 +46,23 @@ public class CommunityService {
         Community deletedCommunity = communityRepository.deleteById(id);
         deletedCommunity.setMembers(members);
         deletedCommunity.setPosts(posts);
-
+        restTemplate.postForObject(url + "true", "Пользователь " + deletedCommunity.getCreatorLogin() + " удалил сообщество: " + deletedCommunity, String.class);
         return deletedCommunity;
     }
 
-    public Community show(int id) {
+    public Community show(int id, String login) {
         Community community = communityRepository.findById(id);
         community.setMembers(communityMemberRepository.findAllByCommunityId(id));
         community.setPosts(communityPostRepository.findAllByCommunityId(id));
+        restTemplate.postForObject(url + "false", "Пользователь " + login + " обратился к сообществу: " + community, String.class);
         return community;
     }
 
-    public CommunityMember join(Principal principal, int communityId) {
-        if (communityRepository.findById(communityId) == null)
+    public CommunityMember join(CommunityMember communityMember) {
+        if (communityRepository.findById(communityMember.getCommunityId()) == null)
             return null;
-        CommunityMember communityMember = new CommunityMember();
-        communityMember.setMemberLogin(principal.getName());
-        communityMember.setCommunityId(communityId);
         CommunityMember joinedCommunityMember = communityMemberRepository.save(communityMember);
+        restTemplate.postForObject(url + "true", "Пользователь " + joinedCommunityMember.getMemberLogin() + " присоединился к сообществу: " + joinedCommunityMember, String.class);
         return joinedCommunityMember;
     }
 
@@ -69,52 +70,63 @@ public class CommunityService {
         return communityMemberRepository.findByMemberLoginAndCommunityId(principal.getName(), communityId) != null;
     }*/
 
-    public CommunityMember leave(Principal principal, CommunityMember communityMember) {
+    public CommunityMember leave(CommunityMember communityMember) {
         if (communityRepository.findById(communityMember.getCommunityId()) == null)
             return null;
-        communityMember.setMemberLogin(principal.getName());
         CommunityMember leftCommunityMember = communityMemberRepository.deleteByMemberLoginAndCommunityId(communityMember);
+        restTemplate.postForObject(url + "true", "Пользователь " + leftCommunityMember.getMemberLogin() + " покинул сообщество: " + leftCommunityMember, String.class);
         return leftCommunityMember;
     }
 
-    public CommunityMember kickCommunityMember(CommunityMember communityMember, Principal principal) {
+    public CommunityMember kickCommunityMember(CommunityMember communityMember) {
         if (communityRepository.findById(communityMember.getCommunityId()) == null)
             return null;
         CommunityMember kickedCommunityMember = communityMemberRepository.deleteById(communityMember.getId());
+        restTemplate.postForObject(url + "true", "Пользователь " + communityRepository.findById(kickedCommunityMember.getCommunityId()).getCreatorLogin() + " выгнал из сообщества: " + kickedCommunityMember, String.class);
         return kickedCommunityMember;
     }
 
-    public CommunityPost createPost(CommunityPost communityPost, Principal principal) {
+    public CommunityPost createPost(CommunityPost communityPost) {
         if (communityRepository.findById(communityPost.getCommunityId()) == null)
             return null;
-        communityPost.setAuthorLogin(principal.getName());
-        CommunityPost createdPost = communityPostRepository.save(communityPost);
-        return createdPost;
+        CommunityPost createdCommunityPost = communityPostRepository.save(communityPost);
+        restTemplate.postForObject(url + "true", "Пользователь " + createdCommunityPost.getAuthorLogin() + " написал пост: " + createdCommunityPost, String.class);
+        return createdCommunityPost;
     }
 
-    public CommunityPost deletePost(CommunityPost communityPost, Principal principal) {
+    public CommunityPost deletePost(CommunityPost communityPost) {
         if (communityRepository.findById(communityPost.getCommunityId()) == null)
             return null;
         CommunityPost deletedCommunityPost = communityPostRepository.deleteById(communityPost.getId());
+        restTemplate.postForObject(url + "true", "Пользователь " + deletedCommunityPost.getAuthorLogin() + " удалил пост: " + deletedCommunityPost, String.class);
         return deletedCommunityPost;
     }
 
-    public List<Community> find(String keyword) {
-        if (keyword != null && !keyword.isEmpty())
-            return communityRepository.findAllLikeName(keyword);
+    public List<Community> find(String keyword, String login) {
+        if (keyword != null && !keyword.isEmpty()) {
+            List<Community> communities = communityRepository.findAllLikeName(keyword);
+            restTemplate.postForObject(url + "false", "Пользователь " + login + " выполнил поиск сообществ: " + communities, String.class);
+            return communities;
+        }
         return null;
     }
 
-    public List<Community> getAll() {
-        return communityRepository.findAll();
+    public List<Community> getAll(String login) {
+        List<Community> communities = communityRepository.findAll();
+        restTemplate.postForObject(url + "false", "Админ " + login + " обратился к списку всех сообществ: " + communities, String.class);
+        return communities;
     }
 
-    public List<CommunityMember> getAllMembers() {
-        return communityMemberRepository.findAll();
+    public List<CommunityMember> getAllMembers(String login) {
+        List<CommunityMember> communityMembers = communityMemberRepository.findAll();
+        restTemplate.postForObject(url + "false", "Админ " + login + " обратился к списку всех участников сообществ: " + communityMembers, String.class);
+        return communityMembers;
     }
 
-    public List<CommunityPost> getAllPosts() {
-        return communityPostRepository.findAll();
+    public List<CommunityPost> getAllPosts(String login) {
+        List<CommunityPost> communityPosts = communityPostRepository.findAll();
+        restTemplate.postForObject(url + "false", "Админ " + login + " обратился к списку всех постов сообществ: " + communityPosts, String.class);
+        return communityPosts;
     }
 
 }

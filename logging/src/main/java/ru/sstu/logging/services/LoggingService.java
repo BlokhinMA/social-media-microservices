@@ -7,8 +7,10 @@ import org.springframework.stereotype.Service;
 @Log4j2
 public class LoggingService {
 
-    public void get(String string) {
-        log.info(string);
+    public void get(String string, boolean forAudit) {
+        if (forAudit)
+            log.fatal(string);
+        else log.error(string);
     }
 
 }

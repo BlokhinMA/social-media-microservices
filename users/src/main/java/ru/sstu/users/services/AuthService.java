@@ -4,11 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import ru.sstu.users.models.AuthResponse;
 import ru.sstu.users.models.User;
 import ru.sstu.users.repositories.UserRepository;
-
-import java.util.Objects;
 
 @Service
 @AllArgsConstructor
@@ -21,13 +20,16 @@ public class AuthService {
     private String refreshToken;
     @Getter
     private User user;
+    private final RestTemplate restTemplate;
+    private final String url = "http://localhost:8765/logging?for_audit=true";
 
     public AuthResponse register(User request) {
         request.setPassword(BCrypt.hashpw(request.getPassword(), BCrypt.gensalt()));
         request.setRole("USER");
         User registeredUser = userRepository.save(request);
+        registeredUser.setPassword(null);
+        restTemplate.postForObject(url, "Пользователь " + registeredUser + " зарегистрировался", String.class);
 
-        assert registeredUser != null;
         String accessToken = jwtUtil.generate(String.valueOf(registeredUser.getId()), registeredUser.getRole(), "ACCESS");
         String refreshToken = jwtUtil.generate(String.valueOf(registeredUser.getId()), registeredUser.getRole(), "REFRESH");
 
@@ -42,12 +44,19 @@ public class AuthService {
             refreshToken = jwtUtil.generate(String.valueOf(authorizedUser.getId()), authorizedUser.getRole(), "REFRESH");
 
             user = authorizedUser;
+            authorizedUser.setPassword(null);
+            restTemplate.postForObject(url, "Пользователь " + authorizedUser + " вошел в систему", String.class);
 
             return new AuthResponse(accessToken, refreshToken);
-        } else return null;
+        } else  {
+            assert authorizedUser != null;
+            restTemplate.postForObject(url, "Кто-то попытался войти с логином " + authorizedUser.getLogin(), String.class);
+            return null;
+        }
     }
 
-    public void logout() {
+    public void logout(String login) {
+        restTemplate.postForObject(url, "Пользователь " + login + " вышел из системы", String.class);
         accessToken = "";
         user = new User();
     }
@@ -61,14 +70,6 @@ public class AuthService {
     public String redirectIfNotAuth(String page) {
         if (accessToken.isEmpty())
             return "redirect:/sign_in";
-        return page;
-    }
-
-    public String redirectIfNotAdmin(String page) {
-        if (accessToken.isEmpty())
-            return "redirect:/sign_in";
-        if (Objects.equals(user.getRole(), "USER"))
-            return "redirect:/my_profile";
         return page;
     }
 

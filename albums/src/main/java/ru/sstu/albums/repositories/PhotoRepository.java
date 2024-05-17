@@ -23,7 +23,7 @@ public class PhotoRepository {
                 photo.getBytes(),
                 photo.getAlbumId());
 
-        return jdbcTemplate.query("SELECT * FROM Photo ORDER BY id DESC LIMIT 1", new BeanPropertyRowMapper<>(Photo.class))
+        return jdbcTemplate.query("SELECT id, name, original_file_name, size, content_type, creation_time_stamp, album_id FROM Photo ORDER BY id DESC LIMIT 1", new BeanPropertyRowMapper<>(Photo.class))
                 .stream().findAny().orElse(null);
     }
 
@@ -34,6 +34,12 @@ public class PhotoRepository {
 
     public Photo findById(int id) {
         return jdbcTemplate.query("call find_photo_by_id(?)", new BeanPropertyRowMapper<>(Photo.class),
+                        id)
+                .stream().findAny().orElse(null);
+    }
+
+    public Photo findEntityById(int id) {
+        return jdbcTemplate.query("call find_photo_entity_by_id(?)", new BeanPropertyRowMapper<>(Photo.class),
                         id)
                 .stream().findAny().orElse(null);
     }
@@ -49,13 +55,13 @@ public class PhotoRepository {
                 word);
     }
 
-    public List<Photo> findAllLikeTags(String word) {
-        return jdbcTemplate.query("call find_photos_like_tags(?)", new BeanPropertyRowMapper<>(Photo.class),
+    public List<Photo> findAllLikeTag(String word) {
+        return jdbcTemplate.query("call find_photos_like_tag(?)", new BeanPropertyRowMapper<>(Photo.class),
                 word);
     }
 
-    public List<Photo> findAllLikeComments(String word) {
-        return jdbcTemplate.query("call find_photos_like_comments(?)", new BeanPropertyRowMapper<>(Photo.class),
+    public List<Photo> findAllLikeComment(String word) {
+        return jdbcTemplate.query("call find_photos_like_comment(?)", new BeanPropertyRowMapper<>(Photo.class),
                 word);
     }
 

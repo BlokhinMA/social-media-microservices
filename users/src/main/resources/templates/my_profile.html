@@ -49,8 +49,6 @@
 </head>
 <body>
 
-<h1>Мой профиль</h1>
-
 <th:block th:fragment="header">
 
     <p>Вы вошли под логином <i th:text="${user.login}"></i></p>
@@ -83,7 +81,7 @@
         };
 
         button.addEventListener('click', function () {
-            fetch(`http://localhost:8765/users/logout`, requestOptions)
+            fetch(`http://localhost:8765/users/logout?login=[[${user.login}]]`, requestOptions)
                 .then(response => {
                     if (response.ok) {
                         console.log('Данные успешно отправлены на сервер');
@@ -102,6 +100,8 @@
     <hr>
 
 </th:block>
+
+<h1>Мой профиль</h1>
 
 </body>
 </html>

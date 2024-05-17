@@ -1,0 +1,3 @@
+2024-05-16 22:04:35,936 [reactor-http-nio-2] r.s.l.s.LoggingService [LoggingService.java:12] - Пользователь root вышел из системы
+2024-05-16 22:04:49,303 [reactor-http-nio-2] r.s.l.s.LoggingService [LoggingService.java:12] - Пользователь User(id=33, login=root, email=, firstName=, lastName=, birthDate=1999-12-31, password=null, role=ADMIN) вошел в систему
+2024-05-16 22:08:00,136 [reactor-http-nio-2] r.s.l.s.LoggingService [LoggingService.java:12] - Пользователь User(id=33, login=root, email=, firstName=, lastName=, birthDate=1999-12-31, password=null, role=ADMIN) вошел в систему
