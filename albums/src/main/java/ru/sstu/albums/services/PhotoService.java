@@ -2,10 +2,7 @@ package ru.sstu.albums.services;
 
 import lombok.AllArgsConstructor;
 import org.springframework.web.client.RestTemplate;
-import ru.sstu.albums.models.Photo;
-import ru.sstu.albums.models.PhotoComment;
-import ru.sstu.albums.models.PhotoRating;
-import ru.sstu.albums.models.PhotoTag;
+import ru.sstu.albums.models.*;
 import ru.sstu.albums.repositories.*;
 import org.springframework.stereotype.Service;
 import ru.sstu.albums.repositories.PhotoRepository;
@@ -15,6 +12,7 @@ import ru.sstu.albums.repositories.PhotoTagRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @AllArgsConstructor
@@ -34,69 +32,72 @@ public class PhotoService {
 
     public Photo show(int id, String login) {
         Photo photo = photoRepository.findById(id);
-        photo.setTags(photoTagRepository.findAllByPhotoId(id));
-        photo.setUserRating(photoRatingRepository.findByRatingUserLoginAndPhotoId(login, id));
-        photo.setRating(photoRatingRepository.calculateAverageRatingByPhotoId(id));
-        photo.setComments(photoCommentRepository.findAllByPhotoId(id));
-        photo.setAlbum(albumRepository.findById(photo.getAlbumId()));
-        restTemplate.postForObject(url + "false", "Пользователь " + login + " обратился к фото: " + photo, String.class);
+        if (photo != null) {
+            photo.setTags(photoTagRepository.findAllByPhotoId(id));
+            photo.setUserRating(photoRatingRepository.findByRatingUserLoginAndPhotoId(login, id));
+            Double rating = photoRatingRepository.calculateAverageRatingByPhotoId(id);
+            if (rating != null)
+                photo.setRating((int) Math.round(rating));
+            else photo.setRating(0);
+            photo.setComments(photoCommentRepository.findAllByPhotoId(id));
+            photo.setAlbum(albumRepository.findById(photo.getAlbumId()));
+            restTemplate.postForObject(url + "false", "Пользователь " + login + " обратился к фото: " + photo, String.class);
+        }
         return photo;
     }
 
-    public Photo delete(Photo photo) {
-        if (albumRepository.findById(photo.getAlbumId()) == null)
-            return null;
-        int photoId = photo.getId();
-        List<PhotoTag> tags = photoTagRepository.findAllByPhotoId(photoId);
-        List<PhotoRating> ratings = photoRatingRepository.findAllByPhotoId(photoId);
-        List<PhotoComment> comments = photoCommentRepository.findAllByPhotoId(photoId);
-        Photo deletedPhoto = photoRepository.deleteById(photo.getId());
+    public int delete(int id, String login) {
+        List<PhotoTag> tags = photoTagRepository.findAllByPhotoId(id);
+        List<PhotoRating> ratings = photoRatingRepository.findAllByPhotoId(id);
+        List<PhotoComment> comments = photoCommentRepository.findAllByPhotoId(id);
+        Photo deletedPhoto = photoRepository.deleteById(id);
         deletedPhoto.setTags(tags);
         deletedPhoto.setRatings(ratings);
         deletedPhoto.setComments(comments);
         deletedPhoto.setAlbum(albumRepository.findById(deletedPhoto.getAlbumId()));
-        restTemplate.postForObject(url + "true", "Пользователь " + deletedPhoto.getAlbum().getUserLogin() + " удалил фото: " + deletedPhoto, String.class);
-        return deletedPhoto;
+        restTemplate.postForObject(url + "true", "Пользователь " + login + " удалил фото: " + deletedPhoto, String.class);
+        return deletedPhoto.getId();
     }
 
-    public PhotoTag createTag(PhotoTag photoTag) {
+    public PhotoTag createTag(PhotoTag photoTag, String login) {
         if (photoTagRepository.findByTagAndPhotoId(photoTag) != null)
             return null;
         PhotoTag createdPhotoTag = photoTagRepository.save(photoTag);
-        restTemplate.postForObject(url + "true", "Пользователь " + albumRepository.findById(photoRepository.findById(createdPhotoTag.getPhotoId()).getAlbumId()).getUserLogin() + " добавил тег: " + createdPhotoTag, String.class);
+        restTemplate.postForObject(url + "true", "Пользователь " + login + " добавил тег: " + createdPhotoTag, String.class);
         return createdPhotoTag;
     }
 
-    public PhotoTag deleteTag(PhotoTag photoTag) {
-        if (photoRepository.findById(photoTag.getPhotoId()) == null)
-            return null;
-        PhotoTag deletedPhotoTag = photoTagRepository.deleteById(photoTag.getId());
-        restTemplate.postForObject(url + "true", "Пользователь " + albumRepository.findById(photoRepository.findById(deletedPhotoTag.getPhotoId()).getAlbumId()).getUserLogin() + " удалил тег: " + deletedPhotoTag, String.class);
-        return deletedPhotoTag;
+    public int deleteTag(int id, String login) {
+        PhotoTag deletedPhotoTag = photoTagRepository.deleteById(id);
+        restTemplate.postForObject(url + "true", "Пользователь " + login + " удалил тег: " + deletedPhotoTag, String.class);
+        return deletedPhotoTag.getId();
     }
 
-    public PhotoRating createRating(PhotoRating photoRating) {
-        if (photoRepository.findById(photoRating.getPhotoId()) == null)
-            return null;
+    public RatingResponse createRating(PhotoRating photoRating) {
         PhotoRating createdPhotoRating = photoRatingRepository.save(photoRating);
         restTemplate.postForObject(url + "true", "Пользователь " + createdPhotoRating.getRatingUserLogin() + " добавил оценку: " + createdPhotoRating, String.class);
-        return createdPhotoRating;
+        return new RatingResponse((int) Math.round(photoRatingRepository.calculateAverageRatingByPhotoId(createdPhotoRating.getPhotoId())), createdPhotoRating.getId());
     }
 
-    public PhotoRating updateRating(PhotoRating photoRating) {
-        if (photoRepository.findById(photoRating.getPhotoId()) == null)
-            return null;
-        PhotoRating updatedPhotoRating = photoRatingRepository.updateRatingById(photoRating);
-        restTemplate.postForObject(url + "true", "Пользователь " + updatedPhotoRating.getRatingUserLogin() + " обновил оценку: " + updatedPhotoRating, String.class);
-        return updatedPhotoRating;
+    public int updateRating(PhotoRating photoRating, String login) {
+        if (Objects.equals(photoRatingRepository.findById(photoRating.getId()).getRatingUserLogin(), login)) {
+            PhotoRating updatedPhotoRating = photoRatingRepository.updateRatingById(photoRating);
+            restTemplate.postForObject(url + "true", "Пользователь " + updatedPhotoRating.getRatingUserLogin() + " обновил оценку: " + updatedPhotoRating, String.class);
+            return (int) Math.round(photoRatingRepository.calculateAverageRatingByPhotoId(updatedPhotoRating.getPhotoId()));
+        }
+        return 0;
     }
 
-    public PhotoRating deleteRating(PhotoRating photoRating) {
-        if (photoRepository.findById(photoRating.getPhotoId()) == null)
-            return null;
-        PhotoRating deletedPhotoRating = photoRatingRepository.deleteById(photoRating.getId());
-        restTemplate.postForObject(url + "true", "Пользователь " + deletedPhotoRating.getRatingUserLogin() + " удалил оценку: " + deletedPhotoRating, String.class);
-        return deletedPhotoRating;
+    public int deleteRating(int id, String login) {
+        if (Objects.equals(photoRatingRepository.findById(id).getRatingUserLogin(), login)) {
+            PhotoRating deletedPhotoRating = photoRatingRepository.deleteById(id);
+            restTemplate.postForObject(url + "true", "Пользователь " + login + " удалил оценку: " + deletedPhotoRating, String.class);
+            Double rating = photoRatingRepository.calculateAverageRatingByPhotoId(deletedPhotoRating.getPhotoId());
+            if (rating != null)
+                return (int) Math.round(rating);
+            return 0;
+        }
+        return -1;
     }
 
     public PhotoComment createComment(PhotoComment photoComment) {
@@ -107,12 +108,10 @@ public class PhotoService {
         return createdPhotoComment;
     }
 
-    public PhotoComment deleteComment(PhotoComment photoComment) {
-        if (photoRepository.findById(photoComment.getPhotoId()) == null)
-            return null;
-        PhotoComment deletedPhotoComment = photoCommentRepository.deleteById(photoComment.getId());
-        restTemplate.postForObject(url + "true", "Пользователь " + deletedPhotoComment.getCommentingUserLogin() + " удалил комментарий: " + deletedPhotoComment, String.class);
-        return deletedPhotoComment;
+    public int deleteComment(int id, String login) {
+        PhotoComment deletedPhotoComment = photoCommentRepository.deleteById(id);
+        restTemplate.postForObject(url + "true", "Пользователь " + login + " удалил комментарий: " + deletedPhotoComment, String.class);
+        return deletedPhotoComment.getId();
     }
 
     public List<Photo> find(String searchTerm, String word, String login) {
@@ -150,13 +149,19 @@ public class PhotoService {
 
     public List<PhotoTag> getAllTags(String login) {
         List<PhotoTag> photoTags = photoTagRepository.findAll();
-        restTemplate.postForObject(url + "false", "Админ " + login + " обратился к списку всех постов сообществ: " + photoTags, String.class);
+        restTemplate.postForObject(url + "false", "Админ " + login + " обратился к списку всех тегов фото: " + photoTags, String.class);
         return photoTags;
+    }
+
+    public List<PhotoRating> getAllRatings(String login) {
+        List<PhotoRating> photoRatings = photoRatingRepository.findAll();
+        restTemplate.postForObject(url + "false", "Админ " + login + " обратился к списку всех постов сообществ: " + photoRatings, String.class);
+        return photoRatings;
     }
 
     public List<PhotoComment> getAllComments(String login) {
         List<PhotoComment> photoComments = photoCommentRepository.findAll();
-        restTemplate.postForObject(url + "false", "Админ " + login + " обратился к списку всех постов сообществ: " + photoComments, String.class);
+        restTemplate.postForObject(url + "false", "Админ " + login + " обратился к списку всех комментариев фото: " + photoComments, String.class);
         return photoComments;
     }
 

@@ -2,7 +2,7 @@
 <html lang="ru" xmlns:th="http://www.thymeleaf.org">
 <head>
     <th:block th:replace="~{my_profile :: meta}"></th:block>
-    <title>Пользователи</title>
+    <title>Фото</title>
     <th:block th:replace="~{my_profile :: style}"></th:block>
 </head>
 <body>
@@ -22,13 +22,13 @@
         <td>creation_time_stamp</td>
         <td>album_id</td>
     </tr>
-    <tr th:each="photo : ${photos}" th:id="${photo.id}" class="photo">
+    <tr th:each="photo : ${photos}">
         <td th:text="${photo.id}"></td>
         <td th:text="${photo.name}"></td>
         <td th:text="${photo.originalFileName}"></td>
         <td th:text="${photo.size}"></td>
         <td th:text="${photo.contentType}"></td>
-        <td></td>
+        <td><img class="photo" th:id="${photo.id}"></td>
         <td th:text="${photo.creationTimeStamp}"></td>
         <td th:text="${photo.albumId}"></td>
     </tr>
@@ -36,14 +36,11 @@
 
 <script>
 
-    const trs = document.querySelectorAll('.photo');
+    const imgs = document.querySelectorAll('.photo');
 
-    trs.forEach(tr => {
+    imgs.forEach(img => {
 
-        let img = document.createElement('img');
-        let td = tr.children.item(5);
-
-        fetch(`http://localhost:8765/albums/photo_entity/${tr.id}`, requestOptions)
+        fetch(`http://localhost:8765/albums/photo_entity/${img.id}`, requestOptions)
             .then(response => {
                 if (response.ok)
                     return response.blob();
@@ -51,7 +48,6 @@
             })
             .then(blob => {
                 img.src = URL.createObjectURL(blob);
-                td.appendChild(img);
             })
             .catch(error => {
                 console.error(error);

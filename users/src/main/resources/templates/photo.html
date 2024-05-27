@@ -9,99 +9,331 @@
 
 <th:block th:replace="~{my_profile :: header}"></th:block>
 
+<th:block th:if="${user.login} == ${photo.album.userLogin}">
+    <button id="deletePhoto" style="display: block; margin-bottom: inherit">удалить фотографию</button>
+</th:block>
+
+<img id="photo">
+
+<p th:text="|Фотография добавлена: ${photo.creationTimeStamp}|"></p>
+
+<span>Теги: </span>
+<th:block th:if="${user.login} == ${photo.album.userLogin}">
+    <form class="deletePhotoTag" th:each="tag : ${photo.tags}" th:id="|tag${tag.id}|" style="display: inline; border: 0">
+        <input type="hidden" th:value="${tag.id}">
+        <span th:text="${tag.tag}"></span>
+        <button>x</button>
+    </form>
+</th:block>
+<th:block th:if="${user.login} != ${photo.album.userLogin}" th:each="tag, iterStat : ${photo.tags}">
+    <span th:text="${tag.tag}"></span><span th:if="${!iterStat.last}">, </span>
+</th:block>
+
+<th:block th:if="${user.login} == ${photo.album.userLogin}">
+    <br>
+    <br>
+    <form>
+        <label for="tag">Добавить тег</label>
+        <input type="text" id="tag" name="tag" required>
+        <button>добавить</button>
+    </form>
+</th:block>
+
+<th:block th:switch="${photo.rating}">
+    <p th:case="null">Фотография еще не оценивалась</p>
+    <p th:case="*" id="rating" th:text="'Рейтинг фотографии: ' + ${photo.rating} + ' %'"></p>
+</th:block>
+
+<th:block th:switch="${photo.userRating}">
+    <th:block th:case="null">
+        <div th:id="ratings">
+            <button class="createRating" id="plus">+</button>
+            <button class="createRating" id="minus">-</button>
+        </div>
+    </th:block>
+    <th:block th:case="*">
+        <th:block th:switch="${photo.userRating.rating}">
+            <th:block th:case="false">
+                <div th:id="ratings">
+                    <button th:id="updateRating">+</button>
+                    <button th:id="deleteRating" style="background: red">-</button>
+                    <input type="hidden" th:value="${photo.userRating.id}">
+                </div>
+            </th:block>
+            <th:block th:case="true">
+                <div th:id="ratings">
+                    <button th:id="deleteRating" style="background: green">+</button>
+                    <button th:id="updateRating">-</button>
+                    <input type="hidden" th:value="${photo.userRating.id}">
+                </div>
+            </th:block>
+        </th:block>
+    </th:block>
+</th:block>
+
+<br>
+<br>
+
+<form>
+    <label for="comment">Добавить комментарий</label>
+    <br>
+    <textarea id="comment" required></textarea>
+    <button>добавить</button>
+</form>
+
+<div th:each="comment : ${photo.comments}">
+    <p th:text="${comment.comment}"></p>
+    <p th:text="${comment.commentingUserLogin}"></p>
+    <p th:text="${comment.commentingTimeStamp}"></p>
+    <th:block th:if="${user.login} == ${photo.album.userLogin} or ${user.login} == ${comment.commentingUserLogin}">
+        <form>
+            <input type="hidden" name="id" th:value="${comment.id}">
+            <input type="hidden" name="photoId" th:value="${comment.photoId}">
+            <button>удалить</button>
+        </form>
+    </th:block>
+</div>
+
 <script>
-    let currentUrl = window.location.href,
-        id = currentUrl.substring(currentUrl.lastIndexOf('/') + 1);
 
-    fetch(`http://localhost:8765/albums/photo/${id}`, requestOptions)
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            }
-            throw new Error('Network response was not ok.');
+    const img = document.getElementById('photo');
+
+    fetch(`http://localhost:8765/albums/photo_entity/[[${photo.id}]]`, requestOptions)
+            .then(response => {
+                if (response.ok)
+                    return response.blob();
+                throw new Error('Network response was not ok.');
+            })
+            .then(blob => {
+                img.src = URL.createObjectURL(blob);
+            })
+            .catch(error => {
+                console.error(error);
+            });
+
+</script>
+
+<script>
+
+    const deletePhotoButton = document.getElementById('deletePhoto');
+
+    deletePhotoButton.addEventListener('click', function () {
+
+        fetch(`http://localhost:8765/albums/delete_photo?id=[[${photo.id}]]&login=[[${user.login}]]`, {
+            headers: {
+                'Authorization': `[[${token}]]`,
+            },
+            method: 'DELETE',
         })
-        .then(data => {
-            let body = document.querySelector('body'),
-                img = document.createElement('img'),
-                p,
-                div,
-                a,
-                key,
-                host = window.location.host;
+            .then(response => {
+                if (response.ok) {
+                    window.location.href = `http://${window.location.host}/my_albums`;
+                    return;
+                }
+                throw new Error('Network response was not ok.');
+            })
+            .catch(error => {
+                console.error('Произошла ошибка:', error);
+            });
 
-            fetch(`http://localhost:8765/albums/photo_entity/${data.id}`, requestOptions)
+    });
+
+</script>
+
+<script>
+
+    const deletePhotoTagForms = document.querySelectorAll('.deletePhotoTag');
+
+    if (deletePhotoTagForms.length !== 0)
+        deletePhotoTagForms.forEach(form => {
+            form.addEventListener('submit', function (event) {
+
+                event.preventDefault();
+
+                const id = form.children.item(0).value;
+
+                fetch(`http://localhost:8765/albums/delete_photo_tag?id=${id}&login=[[${user.login}]]`, {
+                    headers: {
+                        'Authorization': `[[${token}]]`,
+                    },
+                    method: 'DELETE',
+                })
+                    .then(response => {
+                        if (response.ok)
+                            return response.json();
+                        throw new Error('Network response was not ok.');
+                    })
+                    .then(data => {
+                        document.getElementById(`tag${data}`).remove();
+                    })
+                    .catch(error => {
+                        console.error('Произошла ошибка:', error);
+                    });
+            });
+        });
+
+</script>
+
+<script>
+
+    const createRatingButtons = document.querySelectorAll('.createRating');
+
+    if (createRatingButtons.length !== 0)
+
+        createRatingButtons.forEach(button => {
+
+            button.addEventListener('click', function () {
+
+                const ratingValue = button.textContent;
+                let rating = null;
+
+                if (ratingValue === '+')
+                    rating = true;
+                if (ratingValue === '-')
+                    rating = false;
+
+                const photoRating = {
+                    rating: rating,
+                    ratingUserLogin: `[[${user.login}]]`,
+                    photoId: [[${photo.id}]],
+                };
+
+                rating = document.getElementById('rating');
+
+                fetch(`http://localhost:8765/albums/add_photo_rating`, {
+                    headers: {
+                        'Authorization': `[[${token}]]`,
+                        'Content-type': 'application/json'
+                    },
+                    method: 'POST',
+                    body: JSON.stringify(photoRating),
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        }
+                        throw new Error('Network response was not ok.');
+                    })
+                    .then(data => {
+                        rating.textContent = `Рейтинг фотографии: ${data.rating} %`;
+                        if (ratingValue === '-')
+                            document.getElementById('ratings').innerHTML = `
+                                <button id="update">+</button>
+                                <button id="deleteRating" style="background: red">-</button>
+                                <input type="hidden" value="${data.id}">
+                                `;
+                        if (ratingValue === '+')
+                            document.getElementById('ratings').innerHTML = `
+                                <button id="deleteRating" style="background: green">+</button>
+                                <button id="update">-</button>
+                                <input type="hidden" value="${data.id}">
+                                `;
+                    })
+                    .catch(error => {
+                        console.error('Произошла ошибка: ', error);
+                    });
+
+            });
+
+        });
+
+</script>
+
+<script>
+
+    const updateRatingButton = document.getElementById('updateRating');
+
+    if (updateRatingButton !== null)
+
+        updateRatingButton.addEventListener('click', function () {
+
+                const ratingValue = updateRatingButton.textContent;
+                let rating = null;
+
+                if (ratingValue === '+')
+                    rating = true;
+                if (ratingValue === '-')
+                    rating = false;
+
+                const id = document.getElementById('ratings').children.item(2).value;
+
+                const photoRating = {
+                        id: id,
+                        rating: rating,
+                    };
+
+                fetch(`http://localhost:8765/albums/update_photo_rating?login=[[${user.login}]]`, {
+                    headers: {
+                        'Authorization': `[[${token}]]`,
+                        'Content-type': 'application/json'
+                    },
+                    method: 'POST',
+                    body: JSON.stringify(photoRating),
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        }
+                        throw new Error('Network response was not ok.');
+                    })
+                    .then(data => {
+                        document.getElementById('rating').textContent = `Рейтинг фотографии: ${data} %`;
+                        if (ratingValue === '-')
+                            document.getElementById('ratings').innerHTML = `
+                                <button th:id="updateRating">+</button>
+                                <button th:id="deleteRating" style="background: red">-</button>
+                                <input type="hidden" th:value="${id}">
+                                `;
+                        if (ratingValue === '+')
+                            document.getElementById('ratings').innerHTML = `
+                                <button th:id="deleteRating" style="background: green">+</button>
+                                <button th:id="updateRating">-</button>
+                                <input type="hidden" th:value="${id}">
+                                `;
+                    })
+                    .catch(error => {
+                        console.error('Произошла ошибка: ', error);
+                    });
+
+            });
+
+</script>
+
+<script>
+
+    const deleteRatingButton = document.getElementById('deleteRating');
+
+    if (deleteRatingButton !== null)
+
+        deleteRatingButton.addEventListener('click', function () {
+
+            const id = document.getElementById('ratings').children.item(2).value;
+
+            fetch(`http://localhost:8765/albums/delete_photo_rating?id=${id}&login=[[${user.login}]]`, {
+                headers: {
+                    'Authorization': `[[${token}]]`,
+                    'Content-type': 'application/json'
+                },
+                method: 'DELETE',
+            })
                 .then(response => {
-                    if (response.ok)
-                        return response.blob();
+                    if (response.ok) {
+                        return response.json();
+                    }
                     throw new Error('Network response was not ok.');
                 })
-                .then(blob => {
-                    img.src = URL.createObjectURL(blob);
+                .then(data => {
+                    if (data >= 0)
+                        document.getElementById('rating').textContent = `Рейтинг фотографии: ${data} %`;
+                        document.getElementById('ratings').innerHTML = `
+                            <button class="createRating" id="plus">+</button>
+                            <button class="createRating" id="minus">-</button>
+                            `;
                 })
                 .catch(error => {
-                    console.error(error);
+                    console.error('Произошла ошибка: ', error);
                 });
 
-            body.appendChild(img);
-
-
-
-            const tags = data.tags;
-            p = document.createElement('p');
-            if (Object.keys(tags).length === 0) {
-                p.textContent = 'Теги еще не добавлены';
-            } else {
-                let string = 'Теги: ';
-                for (let i = 0; i < tags.length - 1; i++) {
-                    string += `${tags[i].tag}, `;
-                }
-                string += `${tags[tags.length - 1].tag}`
-                p.textContent = string;
-            }
-            body.appendChild(p);
-
-
-
-            const rating = data.rating;
-            p = document.createElement('p');
-            if (data.rating === null)
-                p.textContent = `Фотография еще не оценивалась`;
-            else p.textContent = `Рейтинг фотографии: ${rating}%`;
-            body.appendChild(p);
-
-
-
-            const comments = data.comments;
-            if (Object.keys(comments).length === 0) {
-                div = document.createElement('div');
-                div.textContent = 'Комментарии еще не добавлены';
-                body.appendChild(div);
-            } else {
-                for (key in tags) {
-                    div = document.createElement('div');
-                    div.className = 'container';
-
-                    p = document.createElement('p');
-                    p.textContent = `${comments[key].comment}`;
-                    div.appendChild(p);
-
-                    a = document.createElement('a');
-                    a.textContent = `${comments[key].commentingUserLogin}`;
-                    a.href = `http://${host}/profile/${comments[key].commentingUserLogin}`;
-                    p = document.createElement('p');
-                    p.appendChild(a);
-                    div.appendChild(p);
-
-                    p = document.createElement('p');
-                    p.textContent = `${comments[key].commentingTimeStamp}`;
-                    div.appendChild(p);
-
-                    body.appendChild(div);
-                }
-            }
-        })
-        .catch(error => {
-            console.error('Произошла ошибка', error);
         });
 
 </script>

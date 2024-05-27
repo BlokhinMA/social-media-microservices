@@ -16,13 +16,13 @@ public class AlbumController {
 
     private final AlbumService albumService;
 
-    @GetMapping("/albums/{userLogin}")
-    public ResponseEntity<?> showAll(@PathVariable String userLogin) {
-        return ResponseEntity.ok(albumService.showAll(userLogin));
+    @GetMapping()
+    public ResponseEntity<?> showAll(@RequestParam String login) {
+        return ResponseEntity.ok(albumService.showAll(login));
     }
 
     @PostMapping("/add_album")
-    public ResponseEntity<?> create(@RequestParam String name, @RequestBody List<MultipartFile> files, @RequestParam String login) throws IOException {
+    public ResponseEntity<?> create(@RequestParam String name, @RequestBody /*List<*/MultipartFile[]/*> */files, @RequestParam String login) throws IOException {
         return ResponseEntity.ok(albumService.create(name, files, login));
     }
 
@@ -37,8 +37,8 @@ public class AlbumController {
     }
 
     @DeleteMapping("/delete_album")
-    public ResponseEntity<?> deleteAlbum(@RequestParam int id) {
-        return ResponseEntity.ok(albumService.delete(id));
+    public ResponseEntity<?> deleteAlbum(@RequestParam int id, @RequestParam String login) {
+        return ResponseEntity.ok(albumService.delete(id, login));
     }
 
     @GetMapping("/find_albums")

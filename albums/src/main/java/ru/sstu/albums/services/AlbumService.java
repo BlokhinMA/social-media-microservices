@@ -35,30 +35,32 @@ public class AlbumService {
         return photo;
     }
 
-    public Album create(String name, List<MultipartFile> files, String login) throws IOException {
+    public Album create(String name, /*List<*/MultipartFile[]/*> */files, String login) throws IOException {
         Album album = new Album();
         album.setName(name);
         album.setUserLogin(login);
         Album createdAlbum = albumRepository.save(album);
+        //createPhotos(files, createdAlbum.getId(), createdAlbum.getUserLogin());
         restTemplate.postForObject(url + "true", "Пользователь " + login + " добавил альбом: " + createdAlbum, String.class);
-        createPhotos(files, createdAlbum.getId(), createdAlbum.getUserLogin());
         return createdAlbum;
     }
 
-    public List<Album> showAll(String userLogin) {
-        List<Album> albums = albumRepository.findAllByUserLogin(userLogin);
-        restTemplate.postForObject(url + "false", "Пользователь " + userLogin + " обратился к списку альбомов: " + albums, String.class);
+    public List<Album> showAll(String login) {
+        List<Album> albums = albumRepository.findAllByUserLogin(login);
+        restTemplate.postForObject(url + "false", "Пользователь " + login + " обратился к списку альбомов: " + albums, String.class);
         return albums;
     }
 
     public Album show(int id, String login) {
         Album album = albumRepository.findById(id);
-        restTemplate.postForObject(url + "false", "Пользователь " + login + " обратился к альбому: " + album, String.class);
-        album.setPhotos(photoRepository.findAllByAlbumId(id));
+        if (album != null) {
+            restTemplate.postForObject(url + "false", "Пользователь " + login + " обратился к альбому: " + album, String.class);
+            album.setPhotos(photoRepository.findAllByAlbumId(id));
+        }
         return album;
     }
 
-    public Album delete(int id) {
+    public int delete(int id, String login) {
         List<Photo> photos = photoRepository.findAllByAlbumId(id);
         for (Photo photo : photos) {
             int photoId = photo.getId();
@@ -68,8 +70,8 @@ public class AlbumService {
         }
         Album deletedAlbum = albumRepository.deleteById(id);
         deletedAlbum.setPhotos(photos);
-        restTemplate.postForObject(url + "true", "Пользователь " + deletedAlbum.getUserLogin() + " удалил альбом: " + deletedAlbum, String.class);
-        return deletedAlbum;
+        restTemplate.postForObject(url + "true", "Пользователь " + login + " удалил альбом: " + deletedAlbum, String.class);
+        return deletedAlbum.getId();
     }
 
     public List<Photo> createPhotos(List<MultipartFile> files, int albumId, String login) throws IOException {
@@ -88,13 +90,10 @@ public class AlbumService {
         return createdPhotos;
     }
 
-    public List<Album> find(String word, String login) {
-        if (word != null && !word.isEmpty()) {
-            List<Album> albums = albumRepository.findAllLikeName(word);
-            restTemplate.postForObject(url + "false", "Пользователь " + login + " выполнил поиск альбомов: " + albums, String.class);
-            return albums;
-        }
-        return null;
+    public List<Album> find(String keyword, String login) {
+        List<Album> albums = albumRepository.findAllLikeName(keyword.trim());
+        restTemplate.postForObject(url + "false", "Пользователь " + login + " ввел ключевые слова" + keyword + " и выполнил поиск альбомов: " + albums, String.class);
+        return albums;
     }
 
     public List<Album> getAll(String login) {

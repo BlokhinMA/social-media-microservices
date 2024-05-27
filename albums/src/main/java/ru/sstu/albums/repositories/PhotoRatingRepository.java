@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import ru.sstu.albums.models.PhotoComment;
 import ru.sstu.albums.models.PhotoRating;
 
 import java.util.List;
@@ -13,6 +14,12 @@ import java.util.List;
 public class PhotoRatingRepository {
 
     private final JdbcTemplate jdbcTemplate;
+
+    public PhotoRating findById(int id) {
+        return jdbcTemplate.query("call find_photo_rating_by_id(?)", new BeanPropertyRowMapper<>(PhotoRating.class),
+                        id)
+                .stream().findAny().orElse(null);
+    }
 
     public PhotoRating findByRatingUserLoginAndPhotoId(String ratingUserLogin, int photoId) {
         return jdbcTemplate.query("call find_photo_rating_by_rating_user_login_and_photo_id(?, ?)", new BeanPropertyRowMapper<>(PhotoRating.class),
@@ -50,6 +57,10 @@ public class PhotoRatingRepository {
         return jdbcTemplate.query("call delete_photo_rating_by_id(?)", new BeanPropertyRowMapper<>(PhotoRating.class),
                         id)
                 .stream().findAny().orElse(null);
+    }
+
+    public List<PhotoRating> findAll() {
+        return jdbcTemplate.query("call find_photo_ratings()", new BeanPropertyRowMapper<>(PhotoRating.class));
     }
 
 }

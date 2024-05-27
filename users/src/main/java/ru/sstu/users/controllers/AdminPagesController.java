@@ -59,7 +59,7 @@ public class AdminPagesController {
     public String adminPhotos(Model model) {
         String x = getData(model, "albums/all_photos", "photos");
         if (x != null) return x;
-        return "admin/photo";
+        return "admin/photos";
     }
 
     @GetMapping("/photo_tags")
@@ -67,6 +67,13 @@ public class AdminPagesController {
         String x = getData(model, "albums/all_photo_tags", "photoTags");
         if (x != null) return x;
         return "admin/photo_tags";
+    }
+
+    @GetMapping("/photo_ratings")
+    public String adminPhotoRatings(Model model) {
+        String x = getData(model, "albums/all_photo_ratings", "photoRatings");
+        if (x != null) return x;
+        return "admin/photo_ratings";
     }
 
     @GetMapping("/photo_comments")

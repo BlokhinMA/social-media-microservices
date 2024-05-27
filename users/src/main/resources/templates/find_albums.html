@@ -12,21 +12,26 @@
 <h1>Найти альбомы</h1>
 
 <form id="findAlbums">
-    <label for="word">Введите ключевые слова</label>
-    <input type="search" id="word" name="word" required>
+    <label for="keyword">Введите ключевые слова</label>
+    <input type="search" id="keyword" required>
     <button>искать</button>
 </form>
 
+<div id="albums">
+
+</div>
+
 <script>
 
-    const form = document.getElementById('findAlbums');
+    const findAlbumsForm = document.getElementById('findAlbums');
 
-    form.addEventListener('submit', function(event) {
+    findAlbumsForm.addEventListener('submit', function(event) {
+
         event.preventDefault();
 
-        const word = document.getElementById('word').value;
+        const keyword = document.getElementById('keyword').value;
 
-        fetch(`http://localhost:8765/albums/find_albums/${word}`, requestOptions)
+        fetch(`http://localhost:8765/albums/find_albums?keyword=${keyword}&login=[[${user.login}]]`, requestOptions)
             .then(response => {
                 if (response.ok) {
                     return response.json();
@@ -34,25 +39,18 @@
                 throw new Error('Network response was not ok.');
             })
             .then(data => {
-                let body = document.querySelector('body'),
-                    p = document.createElement('h1');
 
-                if (Object.keys(data).length === 0) {
-                    p.textContent = `По запросу ничего не найдено`;
-                    body.appendChild(p);
-                } else {
-                    let key,
-                        a,
-                        host = window.location.host;
-                    for (key in data) {
-                        p = document.createElement('p');
-                        a = document.createElement('a');
-                        a.href = `http://${host}/album/${data[key].id}`;
-                        a.textContent = `${data[key].name}`;
-                        p.appendChild(a);
-                        body.appendChild(p);
-                    }
+                let html = '';
+
+                for (const key in data) {
+                    html +=
+                        `<div>
+                            <a href="album/${data[key].id}">${data[key].name}</a>
+                        </div>`;
                 }
+
+                document.getElementById('albums').innerHTML = html;
+
             })
             .catch(error => {
                 console.error('Произошла ошибка:', error);

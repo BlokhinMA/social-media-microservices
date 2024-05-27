@@ -29,7 +29,8 @@
         <td th:text="${user.lastName}"></td>
         <td th:text="${user.birthDate}"></td>
         <td>
-            <form th:id="${user.id}" class="updateRole" style="border: 0; padding: 0; display: inline-block">
+            <form class="updateRole" style="border: 0; padding: 0; display: inline-block">
+                <input type="hidden" th:value="${user.id}">
                 <input th:value="${user.role}">
                 <button class="change">изменить</button>
             </form>
@@ -44,8 +45,8 @@
     forms.forEach(form => {
         form.addEventListener('submit', function (event) {
             event.preventDefault();
-            const id = form.id,
-                role = form.children.item(0).value;
+            const id = form.children.item(0).value,
+                role = form.children.item(1).value;
 
             fetch(`http://localhost:8765/users/update_role?id=${id}&role=${role}&login=[[${user.login}]]`, requestOptions)
                 .then(response => {

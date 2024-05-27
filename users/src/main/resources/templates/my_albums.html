@@ -17,19 +17,32 @@
 
 <p>Создать альбом</p>
 
-<form enctype="multipart/form-data" id="addAlbum">
+<form id="addAlbum">
     <label for="name">Название альбома</label>
-    <input type="text" id="name" name="name" placeholder="Название альбома" required>
+    <input type="text" id="name" placeholder="Название альбома" required>
     <br><br>
     <label for="files">Фотографии</label>
-    <input type="file" id="files" name="files" accept="image/*" multiple>
+    <input type="file" id="files" accept="image/*" multiple>
     <br><br>
-    <button>Создать альбом</button>
+    <button>Создать</button>
 </form>
+
+<br>
+<br>
+
+<div id="communities" class="adaptiveContainer">
+    <div th:each="album : ${albums}" th:id="|album${album.id}|">
+        <a th:href="@{/album/{id}(id=${album.id})}" th:text="${album.name}"></a>
+        <form style="display: inline; border: 0">
+            <input type="hidden" th:value="${album.id}">
+            <button>удалить</button>
+        </form>
+    </div>
+</div>
 
 <script>
 
-    fetch(`http://localhost:8765/albums/albums/[[${user.login}]]`, requestOptions)
+    /*fetch(`http://localhost:8765/albums/albums/[[${user.login}]]`, requestOptions)
         .then(response => {
             if (response.ok) {
                 return response.json();
@@ -96,6 +109,57 @@
             })
             .catch(error => {
                 console.error('Произошла ошибка:', error);
+            });
+    });*/
+
+    const addCommunityForm = document.getElementById('addAlbum');
+
+    addCommunityForm.addEventListener('submit', function (event) {
+
+        event.preventDefault();
+
+        const name = document.getElementById('name').value,
+            files = document.getElementById('files')/*.files*/;
+
+        /*console.log(files);*/
+
+        const formData = new FormData(files);
+
+        fetch(`http://localhost:8765/albums/add_album?name=${name}&login=[[${user.login}]]`, {
+            headers: {
+                'Authorization': `[[${token}]]`,
+                'Content-Type': 'multipart/form-data',
+            },
+            method: 'POST',
+            body: formData,
+        })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                }
+                throw new Error('Network response was not ok.');
+            })
+            .then(data => {
+
+                const id = data.id;
+
+                const html =
+                    `<div id="album${id}">
+                        <a href="album/${id}">${data.name}</a>
+                        <form class="deleteAlbum" style="display: inline; border: 0">
+                            <input type="hidden" value="${id}">
+                            <button>удалить</button>
+                        </form>
+                    </div>`;
+
+                document.getElementById('communities').insertAdjacentHTML('beforeend', html);
+
+                document.getElementById('name').value = '';
+                document.getElementById('files').value = '';
+
+            })
+            .catch(error => {
+                console.error('Произошла ошибка: ', error);
             });
     });
 

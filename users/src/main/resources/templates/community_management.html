@@ -11,62 +11,50 @@
 
 <h1>Управление сообществами</h1>
 
-<p>Создать сообщество</p>
+<!--<p>Создать сообщество</p>-->
 
 <form id="addCommunity">
-    <label for="name">Название сообщества</label><br>
-    <input type="text" id="name" name="name" placeholder="Название сообщества" required>
-    <button>Создать сообщество</button>
+    <label for="name">Название сообщества</label>
+    <br>
+    <input type="text" id="name" placeholder="Например, Автомобили" required>
+    <button>Создать</button>
 </form>
+
+<br>
+<br>
+
+<div id="communities" class="adaptiveContainer">
+    <div th:each="community : ${communities}" th:id="|community${community.id}|">
+        <a th:href="@{/community/{id}(id=${community.id})}" th:text="${community.name}"></a>
+        <form class="deleteCommunity" style="display: inline; border: 0">
+            <input type="hidden" th:value="${community.id}">
+            <button>удалить</button>
+        </form>
+    </div>
+</div>
 
 <script>
 
-    let body = document.querySelector('body'),
-        key,
-        p,
-        a,
-        host = window.location.host;
+    const addCommunityForm = document.getElementById('addCommunity');
 
-    fetch(`http://localhost:8765/communities/community_management/[[${user.login}]]`, requestOptions)
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            }
-            throw new Error('Network response was not ok.');
-        })
-        .then(data => {
-            for (key in data) {
-                p = document.createElement('p');
-                a = document.createElement('a');
-                a.href = `${host}/communities/${data[key].id}`;
-                a.textContent = `${data[key].name}`;
-                p.appendChild(a);
-                body.appendChild(p);
-            }
-        })
-        .catch(error => {
-            console.error('Произошла ошибка', error);
-        });
+    addCommunityForm.addEventListener('submit', function (event) {
 
-    const form = document.getElementById('addCommunity');
-
-    form.addEventListener('submit', function(event) {
         event.preventDefault();
 
         const name = document.getElementById('name').value;
 
-        const data = {
+        const community = {
             name: name,
-            creatorLogin: `[[${user.login}]]`,
+            creatorLogin: `[[${user.login}]]`
         }
 
-        fetch('http://localhost:8765/communities/add_community', {
+        fetch(`http://localhost:8765/communities/add_community`, {
             headers: {
                 'Authorization': `[[${token}]]`,
-                'Content-Type': 'application/json'
+                'Content-type': 'application/json',
             },
             method: 'POST',
-            body: JSON.stringify(data),
+            body: JSON.stringify(community),
         })
             .then(response => {
                 if (response.ok) {
@@ -75,17 +63,64 @@
                 throw new Error('Network response was not ok.');
             })
             .then(data => {
-                p = document.createElement('p');
-                a = document.createElement('a');
-                a.href = `${host}/communities/${data.id}`;
-                a.textContent = `${data.name}`;
-                p.appendChild(a);
-                body.appendChild(p);
+
+                const id = data.id;
+
+                const html =
+                    `<div id="community${id}">
+                        <a href="http://${window.location.host}/community/${id}">${data.name}</a>
+                        <form class="deleteCommunity" style="display: inline; border: 0">
+                            <input type="hidden" value="${id}">
+                            <button>удалить</button>
+                        </form>
+                    </div>`;
+
+                document.getElementById('communities').insertAdjacentHTML('beforeend', html);
+
+                document.getElementById('name').value = '';
+
             })
             .catch(error => {
-                console.error('Произошла ошибка:', error);
+                console.error('Произошла ошибка: ', error);
             });
     });
+
+</script>
+
+<script>
+
+    const deleteCommunityForms = document.querySelectorAll('.deleteCommunity');
+
+    if (deleteCommunityForms.length !== 0)
+        deleteCommunityForms.forEach(form => {
+
+            form.addEventListener('submit', function (event) {
+
+                event.preventDefault();
+
+                const id = form.children.item(0).value;
+
+                fetch(`http://localhost:8765/communities/delete_community?id=${id}&login=[[${user.login}]]`, {
+                    headers: {
+                        'Authorization': `[[${token}]]`,
+                    },
+                    method: 'DELETE',
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        }
+                        throw new Error('Network response was not ok.');
+                    })
+                    .then(data => {
+                        document.getElementById(`community${data}`).remove();
+                    })
+                    .catch(error => {
+                        console.error('Произошла ошибка:', error);
+                    });
+            });
+
+        });
 
 </script>
 

@@ -36,18 +36,18 @@ public class PhotoController {
     }
 
     @DeleteMapping("/delete_photo")
-    public ResponseEntity<?> delete(@RequestBody Photo photo) {
-        return ResponseEntity.ok(photoService.delete(photo));
+    public ResponseEntity<?> delete(@RequestParam int id, @RequestParam String login) {
+        return ResponseEntity.ok(photoService.delete(id, login));
     }
 
     @PostMapping("/add_photo_tag")
-    public ResponseEntity<?> createTag(@RequestBody PhotoTag photoTag) {
-        return ResponseEntity.ok(photoService.createTag(photoTag));
+    public ResponseEntity<?> createTag(@RequestBody PhotoTag photoTag, @RequestParam String login) {
+        return ResponseEntity.ok(photoService.createTag(photoTag, login));
     }
 
     @DeleteMapping("/delete_photo_tag")
-    public ResponseEntity<?> deleteTag(@RequestBody PhotoTag photoTag) {
-        return ResponseEntity.ok(photoService.deleteTag(photoTag));
+    public ResponseEntity<?> deleteTag(@RequestParam int id, @RequestParam String login) {
+        return ResponseEntity.ok(photoService.deleteTag(id, login));
     }
 
     @PostMapping("/add_photo_rating")
@@ -56,13 +56,13 @@ public class PhotoController {
     }
 
     @PostMapping("/update_photo_rating")
-    public ResponseEntity<?> updateRating(@RequestBody PhotoRating photoRating) {
-        return ResponseEntity.ok(photoService.updateRating(photoRating));
+    public ResponseEntity<?> updateRating(@RequestBody PhotoRating photoRating, @RequestParam String login) {
+        return ResponseEntity.ok(photoService.updateRating(photoRating, login));
     }
 
     @DeleteMapping("/delete_photo_rating")
-    public ResponseEntity<?> deleteRating(@RequestBody PhotoRating photoRating) {
-        return ResponseEntity.ok(photoService.deleteRating(photoRating));
+    public ResponseEntity<?> deleteRating(@RequestParam int id, @RequestParam String login) {
+        return ResponseEntity.ok(photoService.deleteRating(id, login));
     }
 
     @PostMapping("/add_photo_comment")
@@ -71,8 +71,8 @@ public class PhotoController {
     }
 
     @DeleteMapping("/delete_photo_comment")
-    public ResponseEntity<?> deleteComment(@RequestBody PhotoComment photoComment) {
-        return ResponseEntity.ok(photoService.deleteComment(photoComment));
+    public ResponseEntity<?> deleteComment(@RequestParam int id, @RequestParam String login) {
+        return ResponseEntity.ok(photoService.deleteComment(id, login));
     }
 
     @GetMapping("/find_photos")
@@ -88,6 +88,11 @@ public class PhotoController {
     @GetMapping("/all_photo_tags")
     public ResponseEntity<?> getAllTags(@RequestParam String login) {
         return ResponseEntity.ok(photoService.getAllTags(login));
+    }
+
+    @GetMapping("/all_photo_ratings")
+    public ResponseEntity<?> getAllRatings(@RequestParam String login) {
+        return ResponseEntity.ok(photoService.getAllRatings(login));
     }
 
     @GetMapping("/all_photo_comments")

@@ -49,10 +49,8 @@
         })
             .then(response => {
                 if (response.ok) {
-                    console.log('Данные успешно отправлены на сервер');
                     window.location.href = `http://${window.location.host}/my_profile`;
                 } else {
-                    console.error('Произошла ошибка при отправке данных');
                     let form = document.getElementById('signIn');
                     let p = document.createElement('p');
                     p.id = 'wrong';
@@ -61,6 +59,9 @@
                     form.appendChild(p);
                 }
             })
+            .catch(error => {
+                console.error('Произошла ошибка:', error);
+            });
     });
 
 </script>

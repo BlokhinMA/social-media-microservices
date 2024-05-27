@@ -20,7 +20,7 @@ public class Photo {
     private List<PhotoRating> ratings;
     private List<PhotoComment> comments;
     private PhotoRating userRating;
-    private Double rating;
+    private int rating;
     private Album album;
 
 }

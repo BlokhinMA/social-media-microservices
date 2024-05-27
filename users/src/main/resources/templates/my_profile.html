@@ -9,7 +9,7 @@
         <style>
 
             body {
-                font-size: large;
+                font-size: x-large;
             }
 
             img {
@@ -26,12 +26,14 @@
 
             input {
                 border: 1px solid black;
-                border-radius: 5px;
+                border-radius: 10px;
+                font-size: x-large;
             }
 
             button {
                 border: 1px solid black;
-                border-radius: 5px;
+                border-radius: 10px;
+                font-size: x-large;
             }
 
             td {
@@ -42,6 +44,13 @@
                 border: 1px solid black;
                 border-radius: 10px;
                 padding: 10px;
+            }
+
+            .adaptiveContainer {
+                border: 1px solid black;
+                border-radius: 10px;
+                padding: 10px;
+                display: inline-block;
             }
 
         </style>
@@ -63,6 +72,7 @@
         <p><a th:href="@{/admin/albums}">Альбомы</a></p>
         <p><a th:href="@{/admin/photos}">Фото</a></p>
         <p><a th:href="@{/admin/photo_tags}">Теги фото</a></p>
+        <p><a th:href="@{/admin/photo_ratings}">Оценки фото</a></p>
         <p><a th:href="@{/admin/photo_comments}">Комментарии фото</a></p>
         <p><a th:href="@{/admin/communities}">Сообщества</a></p>
         <p><a th:href="@{/admin/community_members}">Участники сообществ</a></p>
@@ -84,11 +94,9 @@
             fetch(`http://localhost:8765/users/logout?login=[[${user.login}]]`, requestOptions)
                 .then(response => {
                     if (response.ok) {
-                        console.log('Данные успешно отправлены на сервер');
                         window.location.href = `http://${window.location.host}/sign_in`;
-                    } else {
-                        console.error('Произошла ошибка при отправке данных');
                     }
+                    throw new Error('Network response was not ok.');
                 })
                 .catch(error => {
                     console.error('Произошла ошибка', error);

@@ -9,18 +9,20 @@
 
 <th:block th:replace="~{my_profile :: header}"></th:block>
 
-<h1>Теги фото</h1>
+<h1>Оценки фото</h1>
 
 <table>
     <tr>
         <td>id</td>
-        <td>tag</td>
+        <td>rating</td>
+        <td>rating_user_login</td>
         <td>photo_id</td>
     </tr>
-    <tr th:each="photoTag : ${photoTags}">
-        <td th:text="${photoTag.id}"></td>
-        <td th:text="${photoTag.tag}"></td>
-        <td th:text="${photoTag.photoId}"></td>
+    <tr th:each="photoRating : ${photoRatings}">
+        <td th:text="${photoRating.id}"></td>
+        <td th:text="${photoRating.rating}"></td>
+        <td th:text="${photoRating.ratingUserLogin}"></td>
+        <td th:text="${photoRating.photoId}"></td>
     </tr>
 </table>
 

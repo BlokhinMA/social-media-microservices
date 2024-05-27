@@ -22,9 +22,9 @@ public class CommunityService {
     private final RestTemplate restTemplate;
     private final String url = "http://localhost:8765/logging?for_audit=";
 
-    public List<Community> showAllOwn(String userLogin) {
-        List<Community> communities = communityRepository.findAllByCreatorLogin(userLogin);
-        restTemplate.postForObject(url + "false", "Пользователь " + userLogin + " обратился к списку своих сообществ: " + communities, String.class);
+    public List<Community> showAllOwn(String login) {
+        List<Community> communities = communityRepository.findAllByCreatorLogin(login);
+        restTemplate.postForObject(url + "false", "Пользователь " + login + " обратился к списку своих сообществ: " + communities, String.class);
         return communities;
     }
 
@@ -40,27 +40,27 @@ public class CommunityService {
         return createdCommunity;
     }
 
-    public Community delete(int id) {
+    public int delete(int id, String login) {
         List<CommunityMember> members = communityMemberRepository.findAllByCommunityId(id);
         List<CommunityPost> posts = communityPostRepository.findAllByCommunityId(id);
         Community deletedCommunity = communityRepository.deleteById(id);
         deletedCommunity.setMembers(members);
         deletedCommunity.setPosts(posts);
-        restTemplate.postForObject(url + "true", "Пользователь " + deletedCommunity.getCreatorLogin() + " удалил сообщество: " + deletedCommunity, String.class);
-        return deletedCommunity;
+        restTemplate.postForObject(url + "true", "Пользователь " + login + " удалил сообщество: " + deletedCommunity, String.class);
+        return deletedCommunity.getId();
     }
 
     public Community show(int id, String login) {
         Community community = communityRepository.findById(id);
-        community.setMembers(communityMemberRepository.findAllByCommunityId(id));
-        community.setPosts(communityPostRepository.findAllByCommunityId(id));
-        restTemplate.postForObject(url + "false", "Пользователь " + login + " обратился к сообществу: " + community, String.class);
+        if (community != null) {
+            restTemplate.postForObject(url + "false", "Пользователь " + login + " обратился к сообществу: " + community, String.class);
+            community.setMembers(communityMemberRepository.findAllByCommunityId(id));
+            community.setPosts(communityPostRepository.findAllByCommunityId(id));
+        }
         return community;
     }
 
     public CommunityMember join(CommunityMember communityMember) {
-        if (communityRepository.findById(communityMember.getCommunityId()) == null)
-            return null;
         CommunityMember joinedCommunityMember = communityMemberRepository.save(communityMember);
         restTemplate.postForObject(url + "true", "Пользователь " + joinedCommunityMember.getMemberLogin() + " присоединился к сообществу: " + joinedCommunityMember, String.class);
         return joinedCommunityMember;
@@ -70,45 +70,34 @@ public class CommunityService {
         return communityMemberRepository.findByMemberLoginAndCommunityId(principal.getName(), communityId) != null;
     }*/
 
-    public CommunityMember leave(CommunityMember communityMember) {
-        if (communityRepository.findById(communityMember.getCommunityId()) == null)
-            return null;
-        CommunityMember leftCommunityMember = communityMemberRepository.deleteByMemberLoginAndCommunityId(communityMember);
-        restTemplate.postForObject(url + "true", "Пользователь " + leftCommunityMember.getMemberLogin() + " покинул сообщество: " + leftCommunityMember, String.class);
+    public CommunityMember leave(int id, String login) {
+        CommunityMember leftCommunityMember = communityMemberRepository.deleteById(id);
+        restTemplate.postForObject(url + "true", "Пользователь " + login + " покинул сообщество: " + leftCommunityMember, String.class);
         return leftCommunityMember;
     }
 
-    public CommunityMember kickCommunityMember(CommunityMember communityMember) {
-        if (communityRepository.findById(communityMember.getCommunityId()) == null)
-            return null;
-        CommunityMember kickedCommunityMember = communityMemberRepository.deleteById(communityMember.getId());
-        restTemplate.postForObject(url + "true", "Пользователь " + communityRepository.findById(kickedCommunityMember.getCommunityId()).getCreatorLogin() + " выгнал из сообщества: " + kickedCommunityMember, String.class);
-        return kickedCommunityMember;
+    public int kickCommunityMember(int id, String login) {
+        CommunityMember kickedCommunityMember = communityMemberRepository.deleteById(id);
+        restTemplate.postForObject(url + "true", "Пользователь " + login + " выгнал из сообщества: " + kickedCommunityMember, String.class);
+        return kickedCommunityMember.getId();
     }
 
     public CommunityPost createPost(CommunityPost communityPost) {
-        if (communityRepository.findById(communityPost.getCommunityId()) == null)
-            return null;
         CommunityPost createdCommunityPost = communityPostRepository.save(communityPost);
         restTemplate.postForObject(url + "true", "Пользователь " + createdCommunityPost.getAuthorLogin() + " написал пост: " + createdCommunityPost, String.class);
         return createdCommunityPost;
     }
 
-    public CommunityPost deletePost(CommunityPost communityPost) {
-        if (communityRepository.findById(communityPost.getCommunityId()) == null)
-            return null;
-        CommunityPost deletedCommunityPost = communityPostRepository.deleteById(communityPost.getId());
-        restTemplate.postForObject(url + "true", "Пользователь " + deletedCommunityPost.getAuthorLogin() + " удалил пост: " + deletedCommunityPost, String.class);
-        return deletedCommunityPost;
+    public int deletePost(int id, String login) {
+        CommunityPost deletedCommunityPost = communityPostRepository.deleteById(id);
+        restTemplate.postForObject(url + "true", "Пользователь " + login + " удалил пост: " + deletedCommunityPost, String.class);
+        return deletedCommunityPost.getId();
     }
 
     public List<Community> find(String keyword, String login) {
-        if (keyword != null && !keyword.isEmpty()) {
-            List<Community> communities = communityRepository.findAllLikeName(keyword);
-            restTemplate.postForObject(url + "false", "Пользователь " + login + " выполнил поиск сообществ: " + communities, String.class);
-            return communities;
-        }
-        return null;
+        List<Community> communities = communityRepository.findAllLikeName(keyword.trim());
+        restTemplate.postForObject(url + "false", "Пользователь " + login + " ввел ключевые слова" + keyword + " и выполнил поиск сообществ: " + communities, String.class);
+        return communities;
     }
 
     public List<Community> getAll(String login) {

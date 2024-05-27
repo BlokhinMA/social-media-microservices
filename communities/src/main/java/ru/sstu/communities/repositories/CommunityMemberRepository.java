@@ -33,12 +33,12 @@ public class CommunityMemberRepository {
                 .stream().findAny().orElse(null);
     }
 
-    public CommunityMember deleteByMemberLoginAndCommunityId(CommunityMember communityMember) {
+    /*public CommunityMember deleteByMemberLoginAndCommunityId(CommunityMember communityMember) {
         return jdbcTemplate.query("call delete_community_member_by_member_login_and_community_id(?, ?)", new BeanPropertyRowMapper<>(CommunityMember.class),
                         communityMember.getMemberLogin(),
                         communityMember.getCommunityId())
                 .stream().findAny().orElse(null);
-    }
+    }*/
 
     public CommunityMember deleteById(int id) {
         return jdbcTemplate.query("call delete_community_member_by_id(?)", new BeanPropertyRowMapper<>(CommunityMember.class),

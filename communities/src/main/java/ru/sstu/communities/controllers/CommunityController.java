@@ -8,8 +8,6 @@ import ru.sstu.communities.models.CommunityMember;
 import ru.sstu.communities.models.CommunityPost;
 import ru.sstu.communities.services.CommunityService;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/communities")
 @AllArgsConstructor
@@ -17,14 +15,14 @@ public class CommunityController {
 
     private final CommunityService communityService;
 
-    @GetMapping("/community_management/{userLogin}")
-    public List<Community> showAllOwn(@PathVariable String userLogin) {
-        return communityService.showAllOwn(userLogin);
+    @GetMapping("/community_management")
+    public ResponseEntity<?> showAllOwn(@RequestParam String login) {
+        return ResponseEntity.ok(communityService.showAllOwn(login));
     }
 
-    @GetMapping("/my_communities")
-    public List<Community> myCommunities(@RequestParam("member_login") String memberLogin) {
-        return communityService.showAll(memberLogin);
+    @GetMapping("/communities")
+    public ResponseEntity<?> showAll(@RequestParam String login) {
+        return ResponseEntity.ok(communityService.showAll(login));
     }
 
     @PostMapping("/add_community")
@@ -33,13 +31,8 @@ public class CommunityController {
     }
 
     @DeleteMapping("/delete_community")
-    public ResponseEntity<?> delete(@RequestParam int id) {
-        return ResponseEntity.ok(communityService.delete(id));
-    }
-
-    @GetMapping("/communities/{memberLogin}")
-    public List<Community> showAll(@PathVariable String memberLogin) {
-        return communityService.showAll(memberLogin);
+    public ResponseEntity<?> delete(@RequestParam int id, @RequestParam String login) {
+        return ResponseEntity.ok(communityService.delete(id, login));
     }
 
     @GetMapping("/{id}")
@@ -53,13 +46,13 @@ public class CommunityController {
     }
 
     @DeleteMapping("/leave_community")
-    public ResponseEntity<?> leave(@RequestBody CommunityMember communityMember) {
-        return ResponseEntity.ok(communityService.leave(communityMember));
+    public ResponseEntity<?> leave(@RequestParam int id, String login) {
+        return ResponseEntity.ok(communityService.leave(id, login));
     }
 
     @DeleteMapping("/kick_community_member")
-    public ResponseEntity<?> kickCommunityMember(@RequestBody CommunityMember communityMember) {
-        return ResponseEntity.ok(communityService.kickCommunityMember(communityMember));
+    public ResponseEntity<?> kickCommunityMember(@RequestParam int id, @RequestParam String login) {
+        return ResponseEntity.ok(communityService.kickCommunityMember(id, login));
     }
 
     @PostMapping("/add_community_post")
@@ -68,28 +61,28 @@ public class CommunityController {
     }
 
     @DeleteMapping("/delete_community_post")
-    public ResponseEntity<?> deletePost(@RequestBody CommunityPost communityPost) {
-        return ResponseEntity.ok(communityService.deletePost(communityPost));
+    public ResponseEntity<?> deletePost(@RequestParam int id, @RequestParam String login) {
+        return ResponseEntity.ok(communityService.deletePost(id, login));
     }
 
     @GetMapping("/find_communities")
-    public List<Community> find(@RequestParam String keyword, @RequestParam String login) {
-        return communityService.find(keyword, login);
+    public ResponseEntity<?> find(@RequestParam String keyword, @RequestParam String login) {
+        return ResponseEntity.ok(communityService.find(keyword, login));
     }
 
     @GetMapping("/all")
-    public List<Community> getAll(@RequestParam String login) {
-        return communityService.getAll(login);
+    public ResponseEntity<?> getAll(@RequestParam String login) {
+        return ResponseEntity.ok(communityService.getAll(login));
     }
 
     @GetMapping("/all_community_members")
-    public List<CommunityMember> getAllMembers(@RequestParam String login) {
-        return communityService.getAllMembers(login);
+    public ResponseEntity<?> getAllMembers(@RequestParam String login) {
+        return ResponseEntity.ok(communityService.getAllMembers(login));
     }
 
     @GetMapping("/all_community_posts")
-    public List<CommunityPost> getAllPosts(@RequestParam String login) {
-        return communityService.getAllPosts(login);
+    public ResponseEntity<?> getAllPosts(@RequestParam String login) {
+        return ResponseEntity.ok(communityService.getAllPosts(login));
     }
 
 }

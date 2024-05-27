@@ -2,7 +2,6 @@ package ru.sstu.communities;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.converter.AbstractHttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
@@ -17,7 +16,6 @@ public class CommunitiesApplication {
     }
 
     @Bean
-    //@LoadBalanced
     public RestTemplate restTemplate () {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().forEach(converter -> {
