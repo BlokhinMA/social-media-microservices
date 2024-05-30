@@ -9,34 +9,47 @@
 
 <th:block th:replace="~{my_profile :: header}"></th:block>
 
-<h1 th:text="|Сообщество ${community.name}|"></h1>
+<h1 th:text="|Сообщество ${community.name}|" style="display: inline" id="communityName"></h1>
 
 <th:block th:if="${user.login} == ${community.creatorLogin}">
-    <form id="deleteCommunity" style="margin-top: 5px; border: 0">
-        <button>удалить сообщество</button>
-    </form>
+    <button id="deleteCommunity">удалить сообщество</button>
+    <br>
+</th:block>
+
+<th:block th:if="!${community.member} and ${user.login} != ${community.creatorLogin}">
+    <span>
+        <button id="joinCommunity">вступить</button>
+        <br>
+    </span>
+</th:block>
+
+<th:block th:if="${user.login} == ${community.creatorLogin} or ${community.member}">
+    <span>
+        <th:block th:if="${user.login} != ${community.creatorLogin}">
+            <button id="leaveCommunity">выйти из сообщества</button>
+            <p>Вы подписаны</p>
+        </th:block>
+
+        <form id="addCommunityPost" style="margin-top: 5px">
+            <label for="postText">Добавить пост</label>
+            <br>
+            <textarea id="postText" required></textarea>
+            <button>добавить</button>
+        </form>
+    </span>
 </th:block>
 
 <p>Участники</p>
-<div class="adaptiveContainer">
+<div class="adaptiveContainer" id="members">
     <div th:each="member : ${community.members}">
-        <a th:href="@{/profile/{login}(login=${member.memberLogin})}" th:text="${member.memberLogin}"></a>
+        <a th:href="@{/profile/{login}(login=${member.memberLogin})}" th:text="${member.memberLogin}" th:id="|member${member.id}|"></a>
         <th:block th:if="${user.login} == ${community.creatorLogin}">
-            <button class="kickCommunityMember" th:id="${member.id}">выгнать</button>
+            <button class="kickCommunityMember" th:id="|member${member.id}|">выгнать</button>
         </th:block>
     </div>
 </div>
 
 <br>
-
-<th:block th:if="${user.login} == ${community.creatorLogin}">
-    <form id="addCommunityPost" style="margin-top: 5px">
-        <label for="postText">Добавить пост</label>
-        <br>
-        <textarea id="postText" required></textarea>
-        <button>добавить</button>
-    </form>
-</th:block>
 
 <p>Посты</p>
 <div id="posts">
@@ -45,19 +58,17 @@
         <p><a th:href="@{/profile/{login}(login=${post.authorLogin})}" th:text="${post.authorLogin}"></a></p>
         <p th:text="${post.creationTimeStamp}"></p>
         <th:block th:if="${user.login} == ${post.authorLogin} or ${user.login} == ${community.creatorLogin}">
-            <button class="deleteCommunityPost" th:id="${post.id}">удалить</button>
+            <button class="deleteCommunityPost" th:id="|post${post.id}|">удалить</button>
         </th:block>
     </div>
 </div>
 
 <script>
 
-    const deleteCommunityForm = document.getElementById('deleteCommunity');
+    const deleteCommunityButton = document.getElementById('deleteCommunity');
 
-    if (deleteCommunityForm !== null)
-        deleteCommunityForm.addEventListener('submit', function (event) {
-
-            event.preventDefault();
+    if (deleteCommunityButton !== null)
+        deleteCommunityButton.addEventListener('click', function (event) {
 
             fetch(`http://localhost:8765/communities/delete_community?id=[[${community.id}]]&login=[[${user.login}]]`, {
                 headers: {
@@ -88,7 +99,9 @@
         kickCommunityMemberButtons.forEach(button => {
             button.addEventListener('click', function () {
 
-                fetch(`http://localhost:8765/communities/kick_community_member?id=${button.id}&login=[[${user.login}]]`, {
+                const id = button.id.replace('member', '');
+
+                fetch(`http://localhost:8765/communities/kick_community_member?id=${id}&login=[[${user.login}]]`, {
                     headers: {
                         'Authorization': `[[${token}]]`,
                     },
@@ -101,7 +114,7 @@
                         throw new Error('Network response was not ok.');
                     })
                     .then(data => {
-                        button.parentElement.remove();
+                        document.getElementById(`member${data}`).parentElement.remove();
                     })
                     .catch(error => {
                         console.error('Произошла ошибка:', error);
@@ -184,7 +197,9 @@
         deleteCommunityPostButtons.forEach(button => {
             button.addEventListener('click', function () {
 
-                fetch(`http://localhost:8765/communities/delete_community_post?id=${button.id}&login=[[${user.login}]]`, {
+                const id = button.id.replace('post', '');
+
+                fetch(`http://localhost:8765/communities/delete_community_post?id=${id}&login=[[${user.login}]]`, {
                     headers: {
                         'Authorization': `[[${token}]]`,
                     },
@@ -197,13 +212,122 @@
                         throw new Error('Network response was not ok.');
                     })
                     .then(data => {
-                        button.parentElement.remove();
+                        document.getElementById(`post${data}`).parentElement.remove();
                     })
                     .catch(error => {
                         console.error('Произошла ошибка:', error);
                     });
             });
         })
+
+</script>
+
+<script>
+
+    const joinCommunityButton = document.getElementById('joinCommunity');
+
+    if (joinCommunityButton !== null)
+        joinCommunityButton.addEventListener('click', function (event) {
+
+            const communityMember = {
+                memberLogin: `[[${user.login}]]`,
+                communityId: [[${community.id}]],
+            }
+
+            fetch(`http://localhost:8765/communities/join_community`, {
+                headers: {
+                    'Authorization': `[[${token}]]`,
+                    'Content-type': 'application/json'
+                },
+                method: 'POST',
+                body: JSON.stringify(communityMember),
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('Network response was not ok.');
+                })
+                .then(data => {
+                    joinCommunityButton.parentNode.remove();
+                    let html =
+                        `<span>
+                            <button id="leaveCommunity">выйти из сообщества</button>
+                            <p>Вы подписаны</p>
+
+                            <form id="addCommunityPost" style="margin-top: 5px">
+                                <label for="postText">Добавить пост</label>
+                                <br>
+                                <textarea id="postText" required></textarea>
+                                <button>добавить</button>
+                            </form>
+                        </span>`
+
+                    document.getElementById('communityName').insertAdjacentHTML('afterend', html);
+
+                    html =
+                        `<div>
+                            <a href="/profile/${data.memberLogin}">${data.memberLogin}</a>
+                        </div>`
+
+                    document.getElementById('members').insertAdjacentHTML('beforeend', html);
+
+                })
+                .catch(error => {
+                    console.error('Произошла ошибка:', error);
+                });
+
+        });
+
+</script>
+
+<script>
+
+    const leaveCommunityButton = document.getElementById('leaveCommunity');
+
+    if (leaveCommunityButton !== null)
+        leaveCommunityButton.addEventListener('click', function (event) {
+
+            const communityMember = {
+                memberLogin: `[[${user.login}]]`,
+                communityId: [[${community.id}]],
+            }
+
+            fetch(`http://localhost:8765/communities/leave_community`, {
+                headers: {
+                    'Authorization': `[[${token}]]`,
+                    'Content-type': 'application/json'
+                },
+                method: 'DELETE',
+                body: JSON.stringify(communityMember),
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('Network response was not ok.');
+                })
+                .then(data => {
+                    let html =
+                        `<span>
+                            <button id="joinCommunity">вступить</button>
+                            <br>
+                        </span>`
+
+                    document.getElementById('communityName').insertAdjacentHTML('afterend', html);
+
+                    leaveCommunityButton.parentNode.remove();
+
+                    console.log(data.id);
+
+                    document.getElementById(`member${data.id}`).parentNode.remove();
+
+                })
+                .catch(error => {
+                    console.error('Произошла ошибка:', error);
+                });
+
+        });
 
 </script>
 

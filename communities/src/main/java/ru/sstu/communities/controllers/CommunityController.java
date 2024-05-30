@@ -46,8 +46,8 @@ public class CommunityController {
     }
 
     @DeleteMapping("/leave_community")
-    public ResponseEntity<?> leave(@RequestParam int id, String login) {
-        return ResponseEntity.ok(communityService.leave(id, login));
+    public ResponseEntity<?> leave(@RequestBody CommunityMember communityMember) {
+        return ResponseEntity.ok(communityService.leave(communityMember));
     }
 
     @DeleteMapping("/kick_community_member")

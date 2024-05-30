@@ -48,9 +48,9 @@
             body: JSON.stringify(data),
         })
             .then(response => {
-                if (response.ok) {
+                if (response.ok)
                     window.location.href = `http://${window.location.host}/my_profile`;
-                } else {
+                else {
                     let form = document.getElementById('signIn');
                     let p = document.createElement('p');
                     p.id = 'wrong';

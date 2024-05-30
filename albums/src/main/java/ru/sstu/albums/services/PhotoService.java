@@ -38,7 +38,7 @@ public class PhotoService {
             Double rating = photoRatingRepository.calculateAverageRatingByPhotoId(id);
             if (rating != null)
                 photo.setRating((int) Math.round(rating));
-            else photo.setRating(0);
+            else photo.setRating(-1);
             photo.setComments(photoCommentRepository.findAllByPhotoId(id));
             photo.setAlbum(albumRepository.findById(photo.getAlbumId()));
             restTemplate.postForObject(url + "false", "Пользователь " + login + " обратился к фото: " + photo, String.class);
@@ -85,7 +85,7 @@ public class PhotoService {
             restTemplate.postForObject(url + "true", "Пользователь " + updatedPhotoRating.getRatingUserLogin() + " обновил оценку: " + updatedPhotoRating, String.class);
             return (int) Math.round(photoRatingRepository.calculateAverageRatingByPhotoId(updatedPhotoRating.getPhotoId()));
         }
-        return 0;
+        return -2;
     }
 
     public int deleteRating(int id, String login) {
@@ -95,9 +95,9 @@ public class PhotoService {
             Double rating = photoRatingRepository.calculateAverageRatingByPhotoId(deletedPhotoRating.getPhotoId());
             if (rating != null)
                 return (int) Math.round(rating);
-            return 0;
+            return -1;
         }
-        return -1;
+        return -2;
     }
 
     public PhotoComment createComment(PhotoComment photoComment) {

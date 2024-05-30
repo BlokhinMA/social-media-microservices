@@ -56,6 +56,7 @@ public class CommunityService {
             restTemplate.postForObject(url + "false", "Пользователь " + login + " обратился к сообществу: " + community, String.class);
             community.setMembers(communityMemberRepository.findAllByCommunityId(id));
             community.setPosts(communityPostRepository.findAllByCommunityId(id));
+            community.setMember(communityMemberRepository.findByMemberLoginAndCommunityId(login, id) != null);
         }
         return community;
     }
@@ -70,9 +71,9 @@ public class CommunityService {
         return communityMemberRepository.findByMemberLoginAndCommunityId(principal.getName(), communityId) != null;
     }*/
 
-    public CommunityMember leave(int id, String login) {
-        CommunityMember leftCommunityMember = communityMemberRepository.deleteById(id);
-        restTemplate.postForObject(url + "true", "Пользователь " + login + " покинул сообщество: " + leftCommunityMember, String.class);
+    public CommunityMember leave(CommunityMember communityMember) {
+        CommunityMember leftCommunityMember = communityMemberRepository.deleteByMemberLoginAndCommunityId(communityMember);
+        restTemplate.postForObject(url + "true", "Пользователь " + leftCommunityMember.getMemberLogin() + " покинул сообщество: " + leftCommunityMember, String.class);
         return leftCommunityMember;
     }
 

@@ -12,5 +12,6 @@ public class Community {
     private String creatorLogin;
     private List<CommunityMember> members;
     private List<CommunityPost> posts;
+    private boolean isMember;
 
 }

@@ -31,10 +31,7 @@
 <div th:each="photo : ${album.photos}">
     <a th:href="@{/photo/{id}(id=${photo.id})}"><img class="photo" th:id="${photo.id}"></a>
     <th:block th:if="${user.login} == ${album.userLogin}">
-        <!--<form class="deletePhoto" style="display: inline; border: 0">-->
-            <!--<input type="hidden" th:value="${photo.id}">-->
-            <button class="deletePhoto" th:id="${photo.id}">удалить</button>
-        <!--</form>-->
+        <button class="deletePhoto" th:id="|photo${photo.id}|">удалить</button>
     </th:block>
 </div>
 
@@ -64,13 +61,43 @@
 
 <script>
 
+    const deleteAlbumButton = document.getElementById('deleteAlbum');
+
+    if (deleteAlbumButton !== null)
+        deleteAlbumButton.addEventListener('click', function (event) {
+
+            fetch(`http://localhost:8765/albums/delete_album?id=[[${album.id}]]&login=[[${user.login}]]`, {
+                headers: {
+                    'Authorization': `[[${token}]]`,
+                },
+                method: 'DELETE',
+            })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.href = `http://${window.location.host}/my_albums`;
+                        return;
+                    }
+                    throw new Error('Network response was not ok.');
+                })
+                .catch(error => {
+                    console.error('Произошла ошибка:', error);
+                });
+
+        });
+
+</script>
+
+<script>
+
     const deletePhotoButtons = document.querySelectorAll('.deletePhoto');
 
     if (deletePhotoButtons.length !== 0)
         deletePhotoButtons.forEach(button => {
             button.addEventListener('click', function () {
 
-                fetch(`http://localhost:8765/albums/delete_photo?id=${button.id}&login=[[${user.login}]]`, {
+                const id = button.id.replace('photo', '');
+
+                fetch(`http://localhost:8765/albums/delete_photo?id=${id}&login=[[${user.login}]]`, {
                     headers: {
                         'Authorization': `[[${token}]]`,
                     },
@@ -78,10 +105,12 @@
                 })
                     .then(response => {
                         if (response.ok) {
-                            button.parentElement.remove();
-                            return;
+                            return response.json();
                         }
                         throw new Error('Network response was not ok.');
+                    })
+                    .then(data => {
+                        document.getElementById(`photo${data}`).parentElement.remove();
                     })
                     .catch(error => {
                         console.error('Произошла ошибка:', error);

@@ -30,91 +30,18 @@
 <br>
 <br>
 
-<div id="communities" class="adaptiveContainer">
-    <div th:each="album : ${albums}" th:id="|album${album.id}|">
+<div id="albums" class="adaptiveContainer">
+    <div th:each="album : ${albums}">
         <a th:href="@{/album/{id}(id=${album.id})}" th:text="${album.name}"></a>
-        <form style="display: inline; border: 0">
-            <input type="hidden" th:value="${album.id}">
-            <button>удалить</button>
-        </form>
+        <button class="deleteAlbum" th:id="|album${album.id}|">удалить</button>
     </div>
 </div>
 
 <script>
 
-    /*fetch(`http://localhost:8765/albums/albums/[[${user.login}]]`, requestOptions)
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            }
-            throw new Error('Network response was not ok.');
-        })
-        .then(data => {
-            let body = document.querySelector('body'),
-                h1 = document.createElement('h1');
+    const addAlbumForm = document.getElementById('addAlbum');
 
-            if (Object.keys(data).length === 0) {
-                h1.textContent = `Вы ещё не добавили альбомы`;
-                body.appendChild(h1);
-            } else {
-                let key,
-                    p,
-                    a,
-                    host = window.location.host;
-                for (key in data) {
-                    p = document.createElement('p');
-                    a = document.createElement('a');
-                    a.href = `http://${host}/album/${data[key].id}`;
-                    a.textContent = `${data[key].name}`;
-                    p.appendChild(a);
-                    body.appendChild(p);
-                }
-            }
-
-        })
-        .catch(error => {
-            console.error('Произошла ошибка', error);
-        });
-
-    const form = document.getElementById('addAlbum');
-
-    form.addEventListener('submit', function(event) {
-        event.preventDefault();
-
-        const name = document.getElementById('name').value;
-        const files = document.getElementById('files').files;
-
-        const data = {
-            name: name,
-            files: files,
-        }
-
-        console.log(data);
-
-        fetch('http://localhost:8765/albums/add_album', {
-            headers: {
-                'Authorization': `[[${token}]]`
-            },
-            method: 'POST',
-            body: data,
-        })
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                }
-                throw new Error('Network response was not ok.');
-            })
-            .then(data => {
-                //console.log(data);
-            })
-            .catch(error => {
-                console.error('Произошла ошибка:', error);
-            });
-    });*/
-
-    const addCommunityForm = document.getElementById('addAlbum');
-
-    addCommunityForm.addEventListener('submit', function (event) {
+    addAlbumForm.addEventListener('submit', function (event) {
 
         event.preventDefault();
 
@@ -152,7 +79,7 @@
                         </form>
                     </div>`;
 
-                document.getElementById('communities').insertAdjacentHTML('beforeend', html);
+                document.getElementById('albums').insertAdjacentHTML('beforeend', html);
 
                 document.getElementById('name').value = '';
                 document.getElementById('files').value = '';
@@ -162,6 +89,38 @@
                 console.error('Произошла ошибка: ', error);
             });
     });
+
+</script>
+
+<script>
+
+    const deleteAlbumButtons = document.querySelectorAll('.deleteAlbum');
+
+    if (deleteAlbumButtons.length !== 0)
+        deleteAlbumButtons.forEach(button => {
+            button.addEventListener('click', function () {
+
+                const id = button.id.replace('album', '');
+
+                fetch(`http://localhost:8765/albums/delete_album?id=${id}&login=[[${user.login}]]`, {
+                    headers: {
+                        'Authorization': `[[${token}]]`,
+                    },
+                    method: 'DELETE',
+                })
+                    .then(response => {
+                        if (response.ok)
+                            return response.json();
+                        throw new Error('Network response was not ok.');
+                    })
+                    .then(data => {
+                        document.getElementById(`album${data}`).parentNode.remove();
+                    })
+                    .catch(error => {
+                        console.error('Произошла ошибка:', error);
+                    });
+            });
+        });
 
 </script>
 
